@@ -1,0 +1,48 @@
+.login-container {
+  height: 100vh;
+  min-height: 500px;
+  width: 100vw;
+  min-width: 400px;
+  background-color: rgb(255, 255, 255);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  justify-content: space-evenly;
+}
+.login-form #email, .login-form #password {
+  width: 300px;
+  height: 50px;
+  border-radius: 25px;
+  border: 1px solid gray;
+  padding-left: 20px;
+}
+.login-form #login {
+  background-color: black;
+  height: 50px;
+  border-radius: 25px;
+  border: 1px solid gray;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.login-form > .or,.login-form > .no-account, .error, .success {
+  text-align: center;
+  margin: 0;
+}
+.login-form #google {
+  background-color: white;
+  height: 40px;
+  border-radius: 25px;
+  border: 1px solid gray;
+  color: black;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.sign-up-link {
+  text-decoration: none;
+}

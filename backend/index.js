@@ -17,7 +17,9 @@ mongoose.connect('mongodb://localhost:27017/chat')
   .catch(err => console.log(err.message));
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  exposedHeaders: ['x-auth-token']
+}));
 
 const server = http.createServer(app);
 
@@ -28,8 +30,8 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 })
-app.use('/register', register);
-app.use('/auth', auth)
+app.use('/api/register', register);
+app.use('/api/auth', auth)
 app.use('/api/messages', messages);
 app.use('/api/users', users);
 

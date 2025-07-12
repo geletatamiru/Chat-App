@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema({
     maxlength: 1024,
   }
 })
+userSchema.methods.generateToken = function () {
+  return jwt.sign(
+    { id: this._id, username: this.username },
+    process.env.jwt_PrivateKey
+  );
+};
 
 const User = mongoose.model('User', userSchema);
 
@@ -36,8 +42,6 @@ function validateUser(user){
   })
   return schema.validate(user);
 }
-function genetateToken(){
-  const token = jwt.sign({id: this._id, username: this.username}, process.env.jwt_PrivateKey);
-  return token;  
-}
-module.exports = { User, validateUser, genetateToken};
+
+
+module.exports = { User, validateUser};
