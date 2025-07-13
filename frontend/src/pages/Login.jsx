@@ -70,7 +70,6 @@ const Login = () => {
         <p className='no-account'>Don't have an account? <Link to="/register" className="sign-up-link">Sign up</Link></p>
         <p className='or'>OR</p>
         <input type="button" id="google" value="Continue with Google"/>
-        <button onClick={() => navigate("/register")}>Go to Login</button>
       </form>
     </div>
   )
