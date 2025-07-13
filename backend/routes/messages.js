@@ -9,7 +9,7 @@ router.get('/:id', auth, async (req, res) => {
     return res.status(400).send('Invalid receiver Id')
 
   const otherUserId = req.params.id;
-  const currentUserId = req.user._id;
+  const currentUserId = req.user.id;
   
   try{
     const messages = await Message.find({
@@ -33,7 +33,7 @@ router.post('/', auth, async (req, res) => {
   const { receiver, text } = req.body;
 
   const message = new Message({
-    sender: req.user._id,
+    sender: req.user.id,
     receiver,
     text
   })
@@ -41,6 +41,7 @@ router.post('/', auth, async (req, res) => {
     await message.save();
     res.status(201).send(message);
   }catch(err){
+    console.log(err.message);
     res.status(500).send('Internal server error.');
   }
 
