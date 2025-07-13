@@ -1,7 +1,7 @@
-const ChatHeader = () => {
+const ChatHeader = ({name}) => {
   return (
     <div className="chat-header">
-      <h3>John Johnson</h3>
+      <h3>{name}</h3>
       <p>Online</p>
     </div>
   );

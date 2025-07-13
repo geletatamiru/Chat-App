@@ -1,7 +1,7 @@
 import profile from "../../assets/default-profile.jpg";
-const User = ({name, status, onClick}) => {
+const User = ({name, status, user, onClick}) => {
   return (
-    <div className="user" onClick={ () => {onClick(name)}}>
+    <div className="user" onClick={ () => {onClick(user)}}>
       <div className="profile-container">
         <img src={profile} alt="profile"  className="profile-img"/>
       </div>

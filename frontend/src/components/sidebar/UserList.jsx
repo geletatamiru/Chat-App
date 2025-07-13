@@ -55,7 +55,7 @@ const UserList = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
       {
         users.map(user => {
-          return (<User key={user._id} name={user.username} status="Online" onClick={(name) => { setSelectedUser(name)}}/>)
+          return (<User key={user._id} user={user} name={user.username} status="Online" onClick={(user) => { setSelectedUser(user)}}/>)
         })
       }
     </div>

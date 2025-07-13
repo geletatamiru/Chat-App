@@ -2,7 +2,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import "./Login.css"; 
 const Login = () => {
   const { setToken, token } = useAuth();
@@ -25,9 +24,6 @@ const Login = () => {
         throw new Error("Authentication failed: No token received");
       }
       setToken(receivedToken);
-
-      const decoded = jwtDecode(receivedToken);
-      console.log(decoded);
 
       setSuccess(res.data.message);
       setFormData({ email: "", password: "" });

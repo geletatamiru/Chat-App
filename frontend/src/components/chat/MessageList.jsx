@@ -5,11 +5,11 @@ const dummyMessages = [
   { from: "other", text: "Just working and trying to stay productive." },
 ];
 
-const MessageList = () => {
+const MessageList = ({messages}) => {
   return (
     <div className="message-list">
-      {dummyMessages.map((msg, index) => (
-        <MessageBubble key={index} from={msg.from} text={msg.text} />
+      {messages.map((msg) => (
+        <MessageBubble key={msg._id} from={msg.from} text={msg.text} />
       ))}
     </div>
   );

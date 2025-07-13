@@ -39,7 +39,9 @@
   background-color: #2d2d44;
   border-radius: 5px;
 }
-
+.user.current-user{
+  margin-bottom: 10px;
+}
 .profile-container {
   width: 35px;
   height: 35px;
