@@ -10,24 +10,6 @@ const UserList = () => {
   const {setSelectedUser} = useSelectedUser();
   const {token} = useAuth();
 
-  // const users = [
-  //   {
-  //     _id: "1",
-  //     username: "Geleta",
-  //   },
-  //   {
-  //     _id: "2",
-  //     username: "Tamiru",
-  //   },
-  //   {
-  //     _id: "3",
-  //     username: "Abdissa",
-  //   },
-  //   {
-  //     _id: "4",
-  //     username: "Buze",
-  //   }
-  // ]
   useEffect(() => {
     const fetchUsers = async () => {
       try {

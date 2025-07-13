@@ -7,7 +7,6 @@ import "./SideBar.css";
 
 const SideBar = () => {
   const { token } = useAuth();
-  console.log(token);
   const user = jwtDecode(token);
   return (
     <div className="sidebar">
