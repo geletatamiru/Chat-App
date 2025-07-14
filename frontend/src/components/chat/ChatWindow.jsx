@@ -6,16 +6,24 @@ import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import { useAuth } from "../../context/AuthContext";
 import "./ChatWindow.css";
-
+import { socket } from "../../../socket/socket";
 
 const ChatWindow = () => {
   const { selectedUser } = useSelectedUser();
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState("");
   const { token, currentUserId } = useAuth();
-  
   useEffect(() => {
-    if(!selectedUser) return;
+    socket.on('receive_message', (data) => {
+        setMessages(prev => [...prev, { sender: data.senderId, text: data.text }]);
+    });
+
+    return () => {
+        socket.off('receive_message');
+    };
+}, []);
+  useEffect(() => {
+    if (!selectedUser) return;
 
     const fetchMessages = async () => {
       try {
@@ -26,18 +34,17 @@ const ChatWindow = () => {
           }
         );
         setMessages(res.data);
-      }catch(error){
-         if (error.response && error.response.status >= 400 && error.response.status < 500) {
+      } catch (error) {
+        if (error.response && error.response.status >= 400 && error.response.status < 500) {
           setError(error.response.data);
         } else {
-          setError("Something went wrong while sending message.");
+          setError("Something went wrong while fetching messages.");
         }
-      } 
-    }
+      };
+    };
     fetchMessages();
-  }, [selectedUser])
 
-
+  }, [selectedUser, token]);
 
   if (!selectedUser) {
     return (
@@ -47,36 +54,13 @@ const ChatWindow = () => {
         </p>
       </div>
     );
-}
-
-
-  const handleSend = async (message) => {
-      try {
-        const res = await axios.post("http://localhost:5000/api/messages", {
-            receiver: selectedUser._id,
-            text: message
-          },
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-        });
-        setError("");
-        setMessages(prev => [...prev, { sender: currentUserId, text: message }])
-      } catch (error) {
-        if (error.response && error.response.status >= 400 && error.response.status < 500) {
-          setError(error.response.data);
-        } else {
-          setError("Something went wrong while sending message.");
-        }
-
-      }
   }
+
   return (
     <div className="chat-window">
       <ChatHeader name={selectedUser.username} />
-      <MessageList messages={messages} currentUserId={currentUserId}/>
-      <ChatInput onClick={handleSend} />
+      <MessageList messages={messages} currentUserId={currentUserId} />
+      <ChatInput selectedUser={selectedUser} setMessages={setMessages} />
     </div>
   );
 };
