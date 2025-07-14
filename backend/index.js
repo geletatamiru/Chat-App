@@ -1,4 +1,4 @@
-const userSocketMap = new Map(); 
+const onlineUsers = new Map(); 
 const mongoose = require('mongoose');
 const register = require('./routes/register');
 const auth = require('./routes/auth');
@@ -8,6 +8,7 @@ const http = require("http");
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const { Message, validateMessage} = require('./models/message');
 const { Server } = require("socket.io");
 require('dotenv').config();
 const app = express();
@@ -26,7 +27,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*",
     methods: ["GET", "POST"]
   }
 })
@@ -38,24 +39,37 @@ app.use('/api/users', users);
 io.on('connection', (socket) => {
   console.log("Socket connected", socket.id);
 
-  socket.on('authenticate', (token) => {
-    try {
-      const decoded = jwt.verify(token, process.env.jwt_PrivateKey);
-      const userId = decoded.id;
+  socket.on("add_user", (userId) => {
+    onlineUsers.set(userId, socket.id);
+  })
+  
+  socket.on("send_message", async ({senderId, receiverId, text}) => {
+    try{
+      const message = new Message({
+        sender: senderId,
+        receiver: receiverId,
+        text,
+      });
+      await message.save();
 
-      userSocketMap.set(userId, socket.id);
-
-      console.log(`User ${userId} authenticated as socket ${socket.id}`);
+      const receiverSocketId = onlineUsers.get(receiverId);
+      console.log(receiverSocketId)
+      if(receiverSocketId){
+        io.to(receiverSocketId).emit("receive_message", {
+          senderId,
+          text
+        });
+      }
     }catch(error){
-      console.log("Invalid token:", err.message);
-      socket.disconnect(true);
+      console.error("Error saving message: ", error.message);
     }
   })
+
   socket.on("disconnect", () => {
     console.log("Scoket disconnected:", socket.id);
-    for (let [userId, sId] of userSocketMap.entries()) {
+    for (let [userId, sId] of onlineUsers.entries()) {
       if (sId === socket.id) {
-        userSocketMap.delete(userId);
+        onlineUsers.delete(userId);
         break;
       }
     }
@@ -63,6 +77,7 @@ io.on('connection', (socket) => {
   
 })
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 })
