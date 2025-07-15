@@ -1,10 +1,11 @@
 .sidebar {
-  width: 250px;
-  background-color: #1e1e2f;
+  width: 300px;
   color: white;
   display: flex;
   flex-direction: column;
   padding: 20px;
+  border-right: 1px gray solid;
+  border-radius: 5px;
 }
 
 .sidebar-logo {
@@ -33,18 +34,22 @@
   gap: 10px;
   padding: 5px;
   cursor: pointer;
+  position: relative;
 }
-
+.user.clicked {
+  background-color: #39396d;
+  border-radius: 5px;
+}
 .user:hover {
-  background-color: #2d2d44;
+  background-color: #39396d;
   border-radius: 5px;
 }
 .user.current-user{
   margin-bottom: 10px;
 }
 .profile-container {
-  width: 35px;
-  height: 35px;
+  width: 45px;
+  height: 45px;
   background-color: gray;
   border-radius: 50%;
   border: none;
@@ -53,6 +58,11 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
+}
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 .user-info h4 {
   margin: 0;
@@ -63,4 +73,18 @@
   margin: 0;
   font-size: 12px;
   color: gray;
+}
+.user .message-indicator {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  background-color: #6b8afd;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
 }

@@ -49,7 +49,7 @@ const ChatWindow = () => {
   if (!selectedUser) {
     return (
       <div className="chat-window empty">
-        <p style={{ textAlign: "center", marginTop: "50%" }}>
+        <p className="select-user">
           👋 Select a user to start chatting.
         </p>
       </div>

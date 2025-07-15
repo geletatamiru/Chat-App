@@ -6,7 +6,6 @@ import ChatWindow from "../components/chat/ChatWindow";
 import "./ChatPage.css";
 const ChatPage = () => {
   const {currentUserId} = useAuth();
-
   useEffect(() => {
     if(currentUserId){
        socket.emit("add_user", currentUserId);

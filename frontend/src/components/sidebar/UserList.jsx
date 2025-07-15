@@ -4,12 +4,11 @@ import { useAuth } from "../../context/AuthContext";
 import User from "./User";
 import axios from "axios";
 
-const UserList = () => {
+const UserList = ({searchQuery}) => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
-  const {setSelectedUser} = useSelectedUser();
+  const {selectedUser, setSelectedUser} = useSelectedUser();
   const {token} = useAuth();
-
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -32,13 +31,22 @@ const UserList = () => {
 
     fetchUsers();
   }, []);
+   const filteredUsers = users.filter((user) =>
+    user.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
     <div className="user-list">
       {error && <p style={{ color: "red" }}>{error}</p>}
       {
-        users.map(user => {
-          return (<User key={user._id} user={user} name={user.username} status="Online" onClick={(user) => { setSelectedUser(user)}}/>)
-        })
+        filteredUsers.map(user => (
+          <User 
+            key={user._id} 
+            user={user} 
+            name={user.username} 
+            status="Online" 
+            isSelected={selectedUser?._id === user._id}
+            onClick={(user) => { setSelectedUser(user)}}/>)
+        )
       }
     </div>
   )

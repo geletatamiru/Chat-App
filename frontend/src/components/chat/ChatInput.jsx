@@ -1,4 +1,5 @@
 import { useState } from "react";
+import send from "../../assets/send-message.png";
 import { socket } from "../../../socket/socket";
 import { useAuth } from "../../context/AuthContext";
 
@@ -22,11 +23,13 @@ const ChatInput = ({setMessages, selectedUser}) => {
     <div className="chat-input">
       <input 
         type="text" 
-        placeholder="Send a message" 
+        placeholder="Write a message" 
         value={message}
         onChange={(e) => setMessage(e.target.value)}
       />
-      <button onClick={handleSend}>Send</button>
+      <button className="send-button" onClick={handleSend}>
+        <img className="send-icon" src={send} alt="send-icon" />
+      </button>
     </div>
   );
 };
