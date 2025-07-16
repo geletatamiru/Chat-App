@@ -1,15 +1,12 @@
 const { User } = require('../models/user');
 const express = require('express');
 const auth = require('../middleware/auth');
+const asyncMiddleware = require('../middleware/async');
+
 const router = express.Router();
 
-router.get('/', auth, async (req, res) => {
-  try {
+router.get('/', auth, asyncMiddleware(async (req, res) => {
     const users = await User.find({ _id: { $ne: req.user.id } }).select("-password");
     res.send(users);
-  } catch (err) {
-    res.status(500).send("Failed to fetch users.");
-  }
-
-})
+}))
 module.exports = router;
