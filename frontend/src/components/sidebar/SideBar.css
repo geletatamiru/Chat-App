@@ -64,16 +64,11 @@
   flex-direction: column;
   gap: 5px;
 }
-.user-info h4 {
+.user-info .name {
   margin: 0;
   font-size: 14px;
 }
 
-.user-info p {
-  margin: 0;
-  font-size: 12px;
-  color: gray;
-}
 .user .message-indicator {
   position: absolute;
   right: 5px;

@@ -1,38 +1,50 @@
 import { useState, useEffect } from "react";
 import { useSelectedUser } from "../../context/SelectedUserContext";
-import axios from "axios";
 import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import { useAuth } from "../../context/AuthContext";
+import {connectSocket, getSocket} from "../../../socket/socket.js";
+import { fetchMessages } from "../../../services/api.js";
 import "./ChatWindow.css";
-import { socket } from "../../../socket/socket";
 
 const ChatWindow = () => {
   const { selectedUser } = useSelectedUser();
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState("");
   const { token, currentUserId } = useAuth();
+  
   useEffect(() => {
-    socket.on('receive_message', (data) => {
-        setMessages(prev => [...prev, { sender: data.senderId, text: data.text }]);
-    });
+    connectSocket(token);
+    const socket = getSocket();
 
+    socket.on('receive_message', (data) => {
+      setMessages(prev => [...prev, { sender: data.senderId, text: data.text, updatedAt: data.updatedAt}]);
+    });
     return () => {
         socket.off('receive_message');
     };
 }, []);
+
+
   useEffect(() => {
     if (!selectedUser) return;
-
-    const fetchMessages = async () => {
+      const socket = getSocket();
+      socket.emit('is-read', selectedUser._id)
+      
+      // socket.on("messages_read", ( receiverId) => {
+      // if (selectedUser._id === receiverId) {
+      //   setMessages(prev =>
+      //     prev.map(msg => ({
+      //       ...msg,
+      //       read: true,
+      //     }))
+      // );
+    // }
+  // });
+    const loadMessages = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/messages/${selectedUser._id}`,
-          {
-            headers: { "x-auth-token": token },
-          }
-        );
+        const res = await fetchMessages(token, selectedUser._id)
         setMessages(res.data);
       } catch (error) {
         if (error.response && error.response.status >= 400 && error.response.status < 500) {
@@ -42,8 +54,7 @@ const ChatWindow = () => {
         }
       };
     };
-    fetchMessages();
-
+    loadMessages();
   }, [selectedUser, token]);
 
   if (!selectedUser) {
@@ -58,9 +69,13 @@ const ChatWindow = () => {
 
   return (
     <div className="chat-window">
-      <ChatHeader name={selectedUser.username} />
-      <MessageList messages={messages} currentUserId={currentUserId} />
-      <ChatInput selectedUser={selectedUser} setMessages={setMessages} />
+      {error ? <p style={{ color: "red" }}>{error}</p> : 
+      <>
+        <ChatHeader name={selectedUser.username} />
+        <MessageList messages={messages} currentUserId={currentUserId} />
+        <ChatInput selectedUser={selectedUser} setMessages={setMessages} />
+      </>
+      }
     </div>
   );
 };

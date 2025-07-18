@@ -1,5 +1,8 @@
+import { useSelectedUser } from "../../context/SelectedUserContext";
 import profile from "../../assets/default-profile.jpg";
-const User = ({name, status, user, onClick, isSelected}) => {
+const User = ({name, user, onClick, isSelected, unreadCount}) => {
+  const {onlineUsers} = useSelectedUser();
+  const status = onlineUsers.includes(user._id) ? "Online" : "Offline";
   return (
     <div className={`user ${isSelected ? "clicked" : ""}`} onClick={() => { onClick(user)}}>
       <div className="profile-container">
@@ -7,9 +10,12 @@ const User = ({name, status, user, onClick, isSelected}) => {
       </div>
       <div className="user-info">
         <h4 className="name">{name}</h4>
-        <p className="status">{status}</p>
+        <p className={`status ${status === "Online" ? "status-online pulse" : "status-offline"}`}>
+          <span className={`status-dot ${status === "Online" ? "status-dot-online" : "status-dot-offline"}`}></span>
+          {status}
+        </p>
       </div>
-      <span className="message-indicator">2</span>
+      <span className="message-indicator">{unreadCount}</span>
     </div>
   )
 }

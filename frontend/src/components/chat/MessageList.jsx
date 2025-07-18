@@ -3,7 +3,6 @@ import MessageBubble from "./MessageBubble";
 
 const MessageList = ({messages, currentUserId}) => {
   const endOfMessagesRef = useRef(null);
-
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -16,6 +15,7 @@ const MessageList = ({messages, currentUserId}) => {
           key={index}
           from={msg.sender === currentUserId ? "me" : "other"}
           text={msg.text}
+          time={msg.updatedAt}
         />
       ))}
        <div ref={endOfMessagesRef} />

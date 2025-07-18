@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
+import { connectSocket } from '../../socket/socket';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import "./Login.css"; 
@@ -27,6 +28,7 @@ const Login = () => {
 
       setSuccess(res.data.message);
       setFormData({ email: "", password: "" });
+      connectSocket(receivedToken);
       setTimeout(() => {
         navigate('/');
       }, 2000);

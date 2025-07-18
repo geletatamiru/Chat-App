@@ -1,22 +1,19 @@
 import { useState, useEffect } from "react";
 import { useSelectedUser } from "../../context/SelectedUserContext";
 import { useAuth } from "../../context/AuthContext";
+import { fetchUsers } from "../../../services/api";
 import User from "./User";
-import axios from "axios";
 
 const UserList = ({searchQuery}) => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
+  const [unreadCounts, setUnreadCounts] = useState({});
   const {selectedUser, setSelectedUser} = useSelectedUser();
   const {token} = useAuth();
   useEffect(() => {
-    const fetchUsers = async () => {
+    const loadUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users", {
-          headers: {
-            "x-auth-token": token,
-          },
-        });
+        const res = await fetchUsers(token);
         setUsers(res.data);
         setError("");
       } catch (error) {
@@ -25,15 +22,27 @@ const UserList = ({searchQuery}) => {
         } else {
           setError("Something went wrong while fetching users.");
         }
-
       }
     };
 
-    fetchUsers();
-  }, []);
-   const filteredUsers = users.filter((user) =>
+    loadUsers();
+    const fetchUnreadCounts = async () => {
+        const res = await axios.get('http://localhost:5000/api/messages/unread/count', {
+            headers: { 'x-auth-token': token }
+        });
+        const countsMap = {};
+        res.data.forEach(item => {
+            countsMap[item._id] = item.count;
+        });
+        setUnreadCounts(countsMap);
+    };
+    fetchUnreadCounts();
+  }, [token]);
+
+  const filteredUsers = users.filter((user) =>
     user.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   return (
     <div className="user-list">
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -43,9 +52,10 @@ const UserList = ({searchQuery}) => {
             key={user._id} 
             user={user} 
             name={user.username} 
-            status="Online" 
             isSelected={selectedUser?._id === user._id}
-            onClick={(user) => { setSelectedUser(user)}}/>)
+            unreadCount={unreadCounts[user._id] || 0}
+            onClick={(user) => { setSelectedUser(user)}}/>
+          )
         )
       }
     </div>

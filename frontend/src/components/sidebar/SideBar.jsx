@@ -10,7 +10,7 @@ const SideBar = () => {
   const { token } = useAuth();
   const user = jwtDecode(token);
   const [searchQuery, setSearchQuery] = useState("");
-
+ 
   return (
     <div className="sidebar">
       <h2 className="sidebar-logo">QuickChat</h2>
@@ -20,7 +20,10 @@ const SideBar = () => {
             </div>
             <div className="user-info">
               <h4 className="name">{user.username}</h4>
-              <p className="status">Online</p>
+              <p className="status status-online pulse">
+                <span className="status-dot status-dot-online"></span>
+                Online
+              </p>
             </div>
           </div>
           <input 

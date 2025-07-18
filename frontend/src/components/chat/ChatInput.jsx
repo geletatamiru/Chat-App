@@ -1,13 +1,14 @@
 import { useState } from "react";
 import send from "../../assets/send-message.png";
-import { socket } from "../../../socket/socket";
+import { getSocket } from "../../../socket/socket";
 import { useAuth } from "../../context/AuthContext";
 
 
 const ChatInput = ({setMessages, selectedUser}) => {
   const [message, setMessage] = useState("");
   const { currentUserId } = useAuth();
-
+  const socket = getSocket();
+  
   const handleSend = () => {
     if(!message.trim()) return;
     socket.emit("send_message", {
@@ -15,8 +16,7 @@ const ChatInput = ({setMessages, selectedUser}) => {
       receiverId: selectedUser._id,
       text: message
     });
-
-    setMessages((prev) => [...prev, { sender: currentUserId, text: message, receiver: selectedUser._id}])
+    setMessages((prev) => [...prev, { sender: currentUserId, text: message, receiver: selectedUser._id, updatedAt: new Date().toISOString()}])
     setMessage("");
   }
   return (
