@@ -27,7 +27,7 @@ const ChatPage = () => {
           ☰
       </button>
       <SideBar isSidebarOpen={isSidebarOpen}/>
-      <ChatWindow/>
+      <ChatWindow isSidebarOpen={isSidebarOpen}/>
     </div>
   )
 }

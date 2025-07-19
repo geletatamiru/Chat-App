@@ -3,7 +3,19 @@
   display: flex;
   flex-direction: column;
   color: white;
+  transition: margin-left 0.3s ease;
+  height: 100vh;
+
 }
+.chat-window.with-sidebar {
+  margin-left: 0;
+}
+
+.chat-window.full-width {
+  margin-left: -230px;
+  border-left: 1px gray solid;
+}
+
 .select-user {
   text-align: center;
   margin: auto 0;
@@ -13,6 +25,7 @@
   gap: 15px;
   padding: 10px 0 10px 20px;
   border-bottom: 1px solid grey;
+
 }
 .chat-header > .profile-container {
   width: 45px;
@@ -104,4 +117,12 @@
 }
 .send-button .send-icon {
   width: 20px;
+}
+@media (max-width: 768px) {
+  .chat-window.full-width {
+    margin-left: 0;
+  }
+  .chat-header {
+    padding-left: 80px;
+  }
 }

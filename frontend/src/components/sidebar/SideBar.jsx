@@ -35,6 +35,7 @@ const SideBar = ({isSidebarOpen}) => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
       <UserList searchQuery={searchQuery}/>
+      <div>Logout</div>
     </div>
   )
 }

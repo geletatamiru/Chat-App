@@ -8,7 +8,7 @@ import {connectSocket, getSocket} from "../../../socket/socket.js";
 import { fetchMessages } from "../../../services/api.js";
 import "./ChatWindow.css";
 
-const ChatWindow = () => {
+const ChatWindow = ({isSidebarOpen}) => {
   const { selectedUser, setUnreadCounts } = useSelectedUser();
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState("");  
@@ -56,7 +56,7 @@ const ChatWindow = () => {
 
   if (!selectedUser) {
     return (
-      <div className="chat-window empty">
+      <div className={`chat-window empty ${isSidebarOpen ? 'with-sidebar' : 'full-width'}`}>
         <p className="select-user">
           👋 Select a user to start chatting.
         </p>
@@ -65,7 +65,7 @@ const ChatWindow = () => {
   }
 
   return (
-    <div className="chat-window">
+    <div className={`chat-window ${isSidebarOpen ? 'with-sidebar' : 'full-width'}`}>
       {error ? <p style={{ color: "red" }}>{error}</p> : 
       <>
         <ChatHeader name={selectedUser.username} />
