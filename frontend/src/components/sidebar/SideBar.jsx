@@ -1,17 +1,33 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import UserList from "./UserList";
 import profile from "../../assets/default-profile.jpg";
 import {jwtDecode} from "jwt-decode";
 import { useAuth } from "../../context/AuthContext";
 import Input from "../Input";
+import { disconnectSocket } from "../../../socket/socket";
+import { useSelectedUser } from "../../context/SelectedUserContext";
 import "./SideBar.css";
 
 
 const SideBar = ({isSidebarOpen}) => {
-  const { token } = useAuth();
+  const navigate = useNavigate();
+  const { token, setToken } = useAuth();
+  const {setSelectedUser, setUnreadCounts, setOnlineUsers} = useSelectedUser();
   const user = jwtDecode(token);
   
   const [searchQuery, setSearchQuery] = useState("");
+
+  function handleLogout(){
+    setToken(null);
+    localStorage.removeItem("token");
+    setSelectedUser(null);
+    setUnreadCounts({});
+    setOnlineUsers([])
+    disconnectSocket();
+    navigate("/login");
+
+  }
   return (
     <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
       <h2 className="sidebar-logo">QuickChat</h2>
@@ -35,7 +51,7 @@ const SideBar = ({isSidebarOpen}) => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
       <UserList searchQuery={searchQuery}/>
-      <div>Logout</div>
+      <div className="logout" onClick={handleLogout}>Logout</div>
     </div>
   )
 }

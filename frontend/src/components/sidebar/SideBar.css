@@ -66,6 +66,7 @@
 .user-list {
   display: flex;
   flex-direction: column;
+  max-height: 480px;
   gap: 10px;
   overflow-y: auto;
   scrollbar-width: none;
@@ -128,4 +129,15 @@
   align-items: center;
   justify-content: center;
   font-size: 12px;
+}
+.logout {
+  color: white;
+  cursor: pointer;
+  align-self: center;
+  background-color: white;
+  color: black;
+  text-align: center;
+  padding: 10px 10px;
+  border-radius: 5px;
+  font-weight: bold;
 }
