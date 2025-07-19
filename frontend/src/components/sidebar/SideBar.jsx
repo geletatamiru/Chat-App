@@ -3,16 +3,17 @@ import UserList from "./UserList";
 import profile from "../../assets/default-profile.jpg";
 import {jwtDecode} from "jwt-decode";
 import { useAuth } from "../../context/AuthContext";
+import Input from "../Input";
 import "./SideBar.css";
 
 
-const SideBar = () => {
+const SideBar = ({isSidebarOpen}) => {
   const { token } = useAuth();
   const user = jwtDecode(token);
+  
   const [searchQuery, setSearchQuery] = useState("");
- 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
       <h2 className="sidebar-logo">QuickChat</h2>
         <div className="user current-user">
             <div className="profile-container">
@@ -26,7 +27,7 @@ const SideBar = () => {
               </p>
             </div>
           </div>
-          <input 
+          <Input 
             type="text" 
             placeholder="Search User..." 
             className="sidebar-search" 

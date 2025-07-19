@@ -14,13 +14,7 @@
   height: 400px;
   justify-content: space-evenly;
 }
-.login-form #email, .login-form #password {
-  width: 300px;
-  height: 50px;
-  border-radius: 25px;
-  border: 1px solid gray;
-  padding-left: 20px;
-}
+
 .login-form #login {
   background-color: black;
   height: 50px;

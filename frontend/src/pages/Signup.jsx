@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { registerUser } from "../../services/api";
+import Input from "../components/Input";
 import "./Signup.css"; 
 const Signup = () => {
   const [formData, setFormData] = useState({ username: "", email: "", password: "" });
@@ -18,7 +19,7 @@ const Signup = () => {
     setSuccess("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/register", formData)
+      const res = await registerUser(formData);
       setSuccess(res.data.message);
       setFormData({ username: "", email: "", password: "" });
       setTimeout(() => {
@@ -37,23 +38,26 @@ const Signup = () => {
     <div className="signup-container">
       <h1>Create an account</h1>
       <form onSubmit={handleSubmit} className="signup-form">
-        <input 
+        <Input 
           type="text" 
           id="username" 
           placeholder="Username" 
           onChange={handleChange}
+          value={formData.username}
         />
-        <input 
+        <Input 
           type="text" 
           id="email" 
           placeholder="Email address" 
           onChange={handleChange}
+          value={formData.email}
         />
-        <input 
+        <Input 
           type="password" 
           id="password" 
           placeholder="Password" 
           onChange={handleChange}
+          value={formData.password}
         />
         <input 
           type="submit" 

@@ -2,10 +2,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { connectSocket } from '../../socket/socket';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import { loginUser } from '../../services/api';
+import Input from '../components/Input';
 import "./Login.css"; 
+
 const Login = () => {
-  const { setToken, token } = useAuth();
+  const { setToken } = useAuth();
   const [formData, setFormData] = useState({email: "", password: ""});
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -19,7 +21,7 @@ const Login = () => {
     setError("");
     setSuccess("");
     try {
-      const res = await axios.post("http://localhost:5000/api/auth", formData)
+      const res = await loginUser(formData);
       const receivedToken = res.headers["x-auth-token"];
       if (!receivedToken) {
         throw new Error("Authentication failed: No token received");
@@ -46,7 +48,7 @@ const Login = () => {
     <div className="login-container">
       <h1>Welcome back</h1>
       <form onSubmit={handleSubmit} className="login-form">
-        <input 
+        <Input 
           type="text" 
           id="email" 
           name="email"
@@ -54,7 +56,7 @@ const Login = () => {
           value={formData.email}
           onChange={handleChange}
         />
-        <input 
+        <Input 
           type="password" 
           name="password"
           id="password" 

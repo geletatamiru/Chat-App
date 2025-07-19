@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { useSelectedUser } from "../../context/SelectedUserContext";
 import { useAuth } from "../../context/AuthContext";
 import { fetchUsers } from "../../../services/api";
+import axios from "axios";
 import User from "./User";
 
 const UserList = ({searchQuery}) => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
-  const [unreadCounts, setUnreadCounts] = useState({});
-  const {selectedUser, setSelectedUser} = useSelectedUser();
+  const {selectedUser, setSelectedUser, setUnreadCounts} = useSelectedUser();
   const {token} = useAuth();
   useEffect(() => {
     const loadUsers = async () => {
@@ -27,14 +27,23 @@ const UserList = ({searchQuery}) => {
 
     loadUsers();
     const fetchUnreadCounts = async () => {
-        const res = await axios.get('http://localhost:5000/api/messages/unread/count', {
-            headers: { 'x-auth-token': token }
-        });
-        const countsMap = {};
-        res.data.forEach(item => {
-            countsMap[item._id] = item.count;
-        });
-        setUnreadCounts(countsMap);
+        try {
+            const res = await axios.get('http://localhost:5000/api/messages/unread/count', {
+                headers: { 'x-auth-token': token }
+            });
+
+            const countsArray = res.data;
+            const countsObject = countsArray.reduce((acc, curr) => {
+                acc[curr.userId.toString()] = curr.count;
+                return acc;
+            }, {});
+
+            setUnreadCounts(countsObject);
+        } catch (error) {
+            setError("Failed to fetch unread counts");
+            console.log(error);
+            setUnreadCounts({});
+        }
     };
     fetchUnreadCounts();
   }, [token]);
@@ -53,7 +62,6 @@ const UserList = ({searchQuery}) => {
             user={user} 
             name={user.username} 
             isSelected={selectedUser?._id === user._id}
-            unreadCount={unreadCounts[user._id] || 0}
             onClick={(user) => { setSelectedUser(user)}}/>
           )
         )

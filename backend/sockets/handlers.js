@@ -36,7 +36,7 @@ function handleSocketConnection(socket, io, onlineUsers) {
     }catch(error){
       logger.error(`Error updating message: ${error.message}`);
     }
-    // socket.emit("messages_read", id);
+    socket.emit("messages_read", id);
   })
   socket.on("disconnect", () => {
     logger.info(`Socket disconnected: ${socket.id}`);

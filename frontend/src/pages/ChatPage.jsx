@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getSocket, connectSocket } from "../../socket/socket";
 import { useSelectedUser } from "../context/SelectedUserContext";
 import { useAuth } from "../context/AuthContext";
@@ -7,7 +7,8 @@ import ChatWindow from "../components/chat/ChatWindow";
 import "./ChatPage.css";
 const ChatPage = () => {
   const {currentUserId, token} = useAuth();
-  const { setOnlineUsers, onlineUsers} = useSelectedUser();
+  const { setOnlineUsers} = useSelectedUser();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   useEffect(() => {
     if (token) {
       connectSocket(token);
@@ -22,7 +23,10 @@ const ChatPage = () => {
   }, [currentUserId]);
   return (
     <div className="chat-page">
-      <SideBar />
+      <button className="toggle-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen) }>
+          ☰
+      </button>
+      <SideBar isSidebarOpen={isSidebarOpen}/>
       <ChatWindow/>
     </div>
   )

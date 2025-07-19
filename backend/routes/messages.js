@@ -21,7 +21,16 @@ router.get('/:id', auth,asyncMiddleware( async (req, res) => {
   res.send(messages);
 
 }))
+router.get('/unread/count', auth,asyncMiddleware( async (req, res) => {
+  const receiverId = new mongoose.Types.ObjectId(req.user.id);
+  const counts = await Message.aggregate([
+    { $match: { receiver: receiverId, read: false }},  
+    { $group: { _id: "$sender", count: { $sum: 1 }}},
+    { $project: { userId: "$_id", count: 1, _id: 0 }}
+  ]);
+  res.send(counts); 
 
+}));
 router.post('/', auth,asyncMiddleware( async (req, res) => {
   const { error } = validateMessage(req.body);
   if(error) return res.status(400).send(error.details[0].message);

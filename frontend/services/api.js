@@ -16,3 +16,11 @@ export const fetchMessages = (token, id) => {
     }
   })
 }
+
+export const loginUser = (formData) => {
+   return axios.post(`${API_URL}/auth`, formData);
+}
+
+export const registerUser = (formData) => {
+   return axios.post(`${API_URL}/register`, formData);
+}
