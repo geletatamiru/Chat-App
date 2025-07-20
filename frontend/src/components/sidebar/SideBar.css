@@ -28,7 +28,8 @@
     border: none;
     padding: 10px;
     cursor: pointer;
-    font-size: 40px;
+    font-size: 30px;
+    outline: none;
 }
 @media (max-width: 768px) {
   .sidebar {
@@ -49,9 +50,12 @@
 }
 
 .sidebar-logo {
-  margin-bottom: 20px;
-  font-weight: bold;
   text-align: center;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.sidebar-logo > img {
+  width: 120px;
 }
 
 .sidebar-search {

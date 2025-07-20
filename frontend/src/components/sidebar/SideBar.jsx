@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import Input from "../Input";
 import { disconnectSocket } from "../../../socket/socket";
 import { useSelectedUser } from "../../context/SelectedUserContext";
+import logo from "../../assets/logo.png";
 import "./SideBar.css";
 
 
@@ -30,7 +31,9 @@ const SideBar = ({isSidebarOpen}) => {
   }
   return (
     <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
-      <h2 className="sidebar-logo">QuickChat</h2>
+      <div className="sidebar-logo">
+        <img src={logo} alt="Logo" />
+      </div>
         <div className="user current-user">
             <div className="profile-container">
               <img src={profile} alt="profile"  className="profile-img"/>
