@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelectedUser } from "../../context/SelectedUserContext";
 import { useAuth } from "../../context/AuthContext";
-import { fetchUsers } from "../../../services/api";
-import axios from "axios";
+import { fetchUnreadCounts, fetchUsers } from "../../../services/api";
 import User from "./User";
 
 const UserList = ({searchQuery}) => {
@@ -26,12 +25,9 @@ const UserList = ({searchQuery}) => {
     };
 
     loadUsers();
-    const fetchUnreadCounts = async () => {
+    const loadUnreadCounts = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/messages/unread/count', {
-                headers: { 'x-auth-token': token }
-            });
-
+            const res = await fetchUnreadCounts(token);
             const countsArray = res.data;
             const countsObject = countsArray.reduce((acc, curr) => {
                 acc[curr.userId.toString()] = curr.count;
@@ -45,7 +41,7 @@ const UserList = ({searchQuery}) => {
             setUnreadCounts({});
         }
     };
-    fetchUnreadCounts();
+    loadUnreadCounts();
   }, [token]);
 
   const filteredUsers = users.filter((user) =>
