@@ -5,10 +5,12 @@ import { useAuth } from "../context/AuthContext";
 import SideBar from "../components/sidebar/SideBar";
 import ChatWindow from "../components/chat/ChatWindow";
 import "./ChatPage.css";
+
 const ChatPage = () => {
   const {currentUserId, token} = useAuth();
   const { setOnlineUsers} = useSelectedUser();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   useEffect(() => {
     if (token) {
       connectSocket(token);
