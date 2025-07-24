@@ -7,7 +7,7 @@ const Signup = () => {
   const [formData, setFormData] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -17,16 +17,19 @@ const Signup = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true);
 
     try {
       const res = await registerUser(formData);
       setSuccess(res.data.message);
       setFormData({ username: "", email: "", password: "" });
       setTimeout(() => {
+        setLoading(false);
         navigate('/login');
       }, 2000);
 
     } catch (error) {
+      setLoading(false);
       if(error.response && error.response.status >= 400 && error.response.status < 500){
         setError(error.response.data);
       }else {
@@ -61,7 +64,7 @@ const Signup = () => {
         />
         <input 
           type="submit" 
-          value="Signup" 
+          value={`${loading ? 'Signing up...' : 'Signup'}`} 
           id="signup"
         />
         { error && <p className="error" style={{color: "red"}}>{error}</p>}

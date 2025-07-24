@@ -10,7 +10,7 @@ const Login = () => {
   const { setToken } = useAuth();
   const [formData, setFormData] = useState({email: "", password: ""});
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,7 +19,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
+    setLoading(true);
     try {
       const res = await loginUser(formData);
       const receivedToken = res.headers["x-auth-token"];
@@ -28,14 +28,13 @@ const Login = () => {
       }
       setToken(receivedToken);
 
-      setSuccess(res.data.message);
       setFormData({ email: "", password: "" });
       connectSocket(receivedToken);
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
+      setLoading(false);
+      navigate('/');
       
     } catch (error) {
+      setLoading(false);
       if(error.response && error.response.status >= 400 && error.response.status < 500){
         setError(error.response.data);
       }else {
@@ -64,9 +63,8 @@ const Login = () => {
           value={formData.password}
           onChange={handleChange}
         />
-        <input type="submit" value="Login" id="login"/>
+        <input type="submit" value={`${loading ? 'Logging in...' : 'Login'}`} id="login"/>
         { error && <p className="error" style={{color: "red"}}>{error}</p>}
-        { success && <p className="error" style={{color: "green"}}>{success}</p>}
         <p className='no-account'>Don't have an account? <Link to="/register" className="sign-up-link">Sign up</Link></p>
         <p className='or'>OR</p>
         <input type="button" id="google" value="Continue with Google"/>

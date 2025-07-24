@@ -7,15 +7,19 @@ import User from "./User";
 const UserList = ({searchQuery}) => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const {selectedUser, setSelectedUser, setUnreadCounts} = useSelectedUser();
   const {token} = useAuth();
   useEffect(() => {
     const loadUsers = async () => {
+      setLoading(true);
       try {
         const res = await fetchUsers(token);
         setUsers(res.data);
         setError("");
+        setLoading(false);
       } catch (error) {
+        setLoading(false);
         if (error.response && error.response.status >= 400 && error.response.status < 500) {
           setError(error.response.data);
         } else {
@@ -50,6 +54,7 @@ const UserList = ({searchQuery}) => {
 
   return (
     <div className="user-list">
+      {loading && <p>Loading Users...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {
         filteredUsers.map(user => (
