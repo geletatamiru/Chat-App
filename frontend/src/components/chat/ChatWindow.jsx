@@ -20,7 +20,6 @@ const ChatWindow = ({isSidebarOpen}) => {
 
   useEffect(() => {
       const socket = getSocket();
-        
       socket.on('receive_message', (data) => {
         if(data.senderId === selectedUser?._id){
           setMessages(prev => [...prev, { sender: data.senderId, text: data.text, updatedAt: data.updatedAt}]);
@@ -31,6 +30,9 @@ const ChatWindow = ({isSidebarOpen}) => {
         }));
         }
       });
+      return () => {
+        socket.off('receive_message')
+      }
   }, [selectedUser])
   useEffect(() => {
     const socket = getSocket();
