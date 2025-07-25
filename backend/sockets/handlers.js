@@ -27,17 +27,16 @@ function handleSocketConnection(socket, io, onlineUsers) {
       socket.emit("error_message", { error: "Failed to send message." });
     }
   });
-  socket.on("is-read",async (id) => {
-    try{
-      await Message.updateMany(
-        {sender: id,receiver: socket.userId, read: false},
-        { $set: { read: true }}
-      )
-    }catch(error){
-      logger.error(`Error updating message: ${error.message}`);
-      socket.emit("error_message", { error: "Failed to update unread property of unread messages." });
-    }
+
+  socket.on("message_seen", (senderId) => {
+    const senderSocketId = onlineUsers.get(senderId);
+    if(senderSocketId){
+        io.to(senderSocketId).emit('seen_acknowledged', {
+          receiverId: socket.userId
+        })
+      }
   })
+
   socket.on("disconnect", () => {
     logger.info(`Socket disconnected: ${socket.id}`);
     

@@ -1,7 +1,6 @@
 import { io } from "socket.io-client";
 
 let socket;
-
 export const connectSocket = (token) => {
   if (!socket) {
     socket = io("https://chat-app-0l35.onrender.com", {

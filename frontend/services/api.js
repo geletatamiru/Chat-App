@@ -30,3 +30,10 @@ export const fetchUnreadCounts = (token) => {
       'x-auth-token': token 
     }
 })};
+export const markMessageAsRead = (token) => {
+  return axios.get(`${API_URL}/messages/mark-read/${senderId}`, { 
+    headers: {
+      'x-auth-token': token
+    }
+  })
+}

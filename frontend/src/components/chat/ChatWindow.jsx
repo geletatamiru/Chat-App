@@ -23,6 +23,7 @@ const ChatWindow = ({isSidebarOpen}) => {
       socket.on('receive_message', (data) => {
         if(data.senderId === selectedUser?._id){
           setMessages(prev => [...prev, { sender: data.senderId, text: data.text, updatedAt: data.updatedAt}]);
+          socket.emit('message_seen', selectedUser._id)
         }else {
           setUnreadCounts((prev) => ({
           ...prev,
@@ -30,12 +31,24 @@ const ChatWindow = ({isSidebarOpen}) => {
         }));
         }
       });
+
+      socket.on('seen_acknowledged', ({receiverId}) => {
+        console.log(receiverId);
+        if (receiverId === selectedUser?._id) {
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            !msg.read
+              ? { ...msg, read: true }
+              : msg
+          ));
+          }
+        })
       return () => {
         socket.off('receive_message')
+        socket.off('seen_acknowledged')
       }
   }, [selectedUser])
   useEffect(() => {
-    const socket = getSocket();
     if (!selectedUser) return;
 
     const loadMessages = async () => {
@@ -51,9 +64,6 @@ const ChatWindow = ({isSidebarOpen}) => {
       };
     };
     loadMessages();
-    return () => {
-      socket.off('receive_message');
-    };
   }, [selectedUser, token]);
 
   if (!selectedUser) {

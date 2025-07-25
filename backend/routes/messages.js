@@ -46,5 +46,17 @@ router.post('/', auth,asyncMiddleware( async (req, res) => {
   res.status(201).send(message);
 
 }))
+router.put('/mark-read/:id', auth, asyncMiddleware(async (req, res) => {
+  const senderId = req.params.id;
+  const receiverId = req.user.id;
 
+  const result = await Message.updateMany(
+      { sender: senderId, receiver: receiverId, read: false },
+      { $set: { read: true } }
+    );
+    
+    return res.status(200).json({
+      message: 'Messages marked as read.',
+    });
+}));
 module.exports = router;

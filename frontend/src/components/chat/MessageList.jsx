@@ -6,7 +6,6 @@ const MessageList = ({messages, currentUserId}) => {
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
   return (
     <div className="message-list">
       {messages.map((msg, index) => (
@@ -16,6 +15,7 @@ const MessageList = ({messages, currentUserId}) => {
           from={msg.sender === currentUserId ? "me" : "other"}
           text={msg.text}
           time={msg.updatedAt}
+          read={msg.read}
         />
       ))}
        <div ref={endOfMessagesRef} />

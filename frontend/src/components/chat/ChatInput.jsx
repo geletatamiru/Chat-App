@@ -16,7 +16,7 @@ const ChatInput = ({setMessages, selectedUser}) => {
       receiverId: selectedUser._id,
       text: message
     });
-    setMessages((prev) => [...prev, { sender: currentUserId, text: message, receiver: selectedUser._id, updatedAt: new Date().toISOString()}])
+    setMessages((prev) => [...prev, { sender: currentUserId, text: message, receiver: selectedUser._id, updatedAt: new Date().toISOString(), read: false}])
     setMessage("");
   }
   return (

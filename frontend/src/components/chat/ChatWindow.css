@@ -90,7 +90,12 @@
   align-self: flex-start;
   color: white;
 }
-
+.message-bubble .icon-cont {
+  align-self: flex-end;
+}
+.message-bubble .icon-cont > img{
+  height: 12px;
+}
 .chat-input {
   display: flex;
   padding: 10px;

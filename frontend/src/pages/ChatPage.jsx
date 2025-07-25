@@ -22,6 +22,10 @@ const ChatPage = () => {
     socket.on('online-users', (users) => {
       setOnlineUsers(users);
     }) 
+    return () => {
+      socket.off('online-users')
+      socket.off('add_user')
+    }
   }, [currentUserId]);
   return (
     <div className="chat-page">
