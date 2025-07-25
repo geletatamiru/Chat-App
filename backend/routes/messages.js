@@ -46,8 +46,8 @@ router.post('/', auth,asyncMiddleware( async (req, res) => {
   res.status(201).send(message);
 
 }))
-router.put('/mark-read/:id', auth, asyncMiddleware(async (req, res) => {
-  const senderId = req.params.id;
+router.put('/mark-read', auth, asyncMiddleware(async (req, res) => {
+  const senderId = req.body;
   const receiverId = req.user.id;
 
   const result = await Message.updateMany(
