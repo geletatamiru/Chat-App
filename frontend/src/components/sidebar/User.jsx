@@ -1,6 +1,5 @@
 import { useSelectedUser } from "../../context/SelectedUserContext";
 import { getSocket } from "../../../socket/socket";
-import { markMessageAsRead } from "../../../services/api";
 import profile from "../../assets/default-profile.jpg";
 const User = ({name, user, onClick, isSelected}) => {
   const {onlineUsers, unreadCounts, setUnreadCounts} = useSelectedUser();
@@ -19,7 +18,6 @@ const User = ({name, user, onClick, isSelected}) => {
             [user._id]: 0
           }
         })
-        await markMessageAsRead(user._id);
         
       }}>
       <div className="profile-container">

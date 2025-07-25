@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSelectedUser } from "../../context/SelectedUserContext";
 import { useAuth } from "../../context/AuthContext";
 import { fetchUnreadCounts, fetchUsers } from "../../../services/api";
+import { markMessageAsRead } from "../../../services/api";
 import User from "./User";
 
 const UserList = ({searchQuery}) => {
@@ -63,7 +64,10 @@ const UserList = ({searchQuery}) => {
             user={user} 
             name={user.username} 
             isSelected={selectedUser?._id === user._id}
-            onClick={(user) => { setSelectedUser(user)}}/>
+            onClick={async (user) => { 
+              setSelectedUser(user)
+              await markMessageAsRead(user._id, token);
+            }}/>
           )
         )
       }
