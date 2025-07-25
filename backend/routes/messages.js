@@ -51,7 +51,7 @@ router.put('/mark-read', auth, asyncMiddleware(async (req, res) => {
   const receiverId = req.user.id;
 
   const result = await Message.updateMany(
-      { sender: mongoose.Types.ObjectId(senderId), receiver: mongoose.Types.ObjectId(receiverId), read: false },
+      { sender: new mongoose.Types.ObjectId(senderId), receiver: new mongoose.Types.ObjectId(receiverId), read: false },
       { $set: { read: true } }
     );
     
