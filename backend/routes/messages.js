@@ -59,4 +59,18 @@ router.put('/mark-read', auth, asyncMiddleware(async (req, res) => {
       message: 'Messages marked as read.',
     });
 }));
+
+router.delete('/:id', auth, asyncMiddleware(async (req, res) => {
+  const messageId = req.params.id;
+  const userId = req.user.id;
+  const message = await Message.findById(messageId);
+  if(!message) return res.status(404).send({error: 'Message not found'});
+
+  if(message.sender.toString() !== userId && message.receiver.toString() !== userId){
+    return res.status(403).send({error: 'Not authorized to delete this message'})
+  }
+
+  await Message.findByIdAndDelete(messageId);
+  res.send({message: 'Message deleted successfully'})
+}))
 module.exports = router;

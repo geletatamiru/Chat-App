@@ -23,14 +23,14 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 5,
     maxlength: 1024,
-  }
+  },
+  isVerified: { type: Boolean, default: false },
+  verificationToken: String,
+  verificationTokenExpires: Date,
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 })
-userSchema.methods.generateToken = function () {
-  return jwt.sign(
-    { id: this._id, username: this.username },
-    process.env.jwt_PrivateKey
-  );
-};
+
 
 const User = mongoose.model('User', userSchema);
 
