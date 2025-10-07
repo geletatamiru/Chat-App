@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
-import { registerUser } from "../../services/api";
+import { signupApi } from "../../services/authApi";
 import Input from "../components/Input";
 import "./Signup.css"; 
 const Signup = () => {
@@ -20,8 +20,8 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const res = await registerUser(formData);
-      setSuccess(res.data.message);
+      const data = await signupApi(formData);
+      setSuccess(data.message);
       setFormData({ username: "", email: "", password: "" });
       setTimeout(() => {
         setLoading(false);

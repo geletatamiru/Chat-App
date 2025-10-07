@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, Children } from "react";
+import { createContext, useState, useContext } from "react";
 
 const SelectedUserContext = createContext();
 

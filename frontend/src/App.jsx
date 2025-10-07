@@ -1,17 +1,24 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ChatPage from "./pages/ChatPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 function App() {
-  const { token } = useAuth();
 
   return (
     <Routes>
-      <Route path="/" element={token ? <ChatPage /> : <Navigate to="/login" />} />
-      <Route path="/login" element={!token ? <Login /> : <Navigate to="/" />} />
-      <Route path="/register" element={!token ? <Signup /> : <Navigate to="/" />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            {/* <ChatPage /> */}
+            ChatPage
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
     </Routes>
   )
 }

@@ -16,7 +16,7 @@ module.exports = function(app){
   }));
   app.use('/api/auth', auth)
   app.use('/api/messages', messages);
-  app.use('/api/users', users);
+  // app.use('/api/users', users);
   app.use(error);
 }
 

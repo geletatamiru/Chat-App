@@ -1,13 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
-import { connectSocket } from '../../socket/socket';
+// import { connectSocket } from '../../socket/socket';
 import { useAuth } from '../context/AuthContext';
-import { loginUser } from '../../services/api';
 import Input from '../components/Input';
 import "./Login.css"; 
 
 const Login = () => {
-  const { setToken } = useAuth();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({email: "", password: ""});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,24 +20,16 @@ const Login = () => {
     setError("");
     setLoading(true);
     try {
-      const res = await loginUser(formData);
-      const receivedToken = res.headers["x-auth-token"];
-      if (!receivedToken) {
-        throw new Error("Authentication failed: No token received");
-      }
-      setToken(receivedToken);
-
+      await login(formData);
       setFormData({ email: "", password: "" });
-      connectSocket(receivedToken);
+      // connectSocket(receivedToken);
       setLoading(false);
       navigate('/');
-      
     } catch (error) {
       setLoading(false);
       if(error.response && error.response.status >= 400 && error.response.status < 500){
-        setError(error.response.data);
+        setError(error.response?.data.message);
       }else {
-        console.log(error.message);
         setError("Something went wrong. Please try again.");
       }
     }

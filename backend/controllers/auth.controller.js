@@ -224,10 +224,9 @@ const refresh = async (req, res) => {
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
-
   const accessToken = createAccessToken(user);
 
-  res.status(200).json({success: true, message: 'Successfully refreshed', accessToken})
+  res.status(200).json({success: true, message: 'Successfully refreshed', accessToken, user: {  ...user._doc, password: undefined }})
 }
 
 function validateUserLogin(user){
