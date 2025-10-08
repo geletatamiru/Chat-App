@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { signupApi } from "../../services/authApi";
 import Input from "../components/Input";
+import { useAuth } from "../context/AuthContext";
 import "./Signup.css"; 
 const Signup = () => {
   const [formData, setFormData] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const {setEmailForVerification} = useAuth();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
@@ -16,25 +18,23 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
     setLoading(true);
 
     try {
-      const data = await signupApi(formData);
-      setSuccess(data.message);
+      await signupApi(formData);
+      setEmailForVerification(formData.email);
       setFormData({ username: "", email: "", password: "" });
-      setTimeout(() => {
-        setLoading(false);
-        navigate('/login');
-      }, 2000);
-
+      navigate('/verify');
+      
     } catch (error) {
-      setLoading(false);
+      console.log(error);
       if(error.response && error.response.status >= 400 && error.response.status < 500){
-        setError(error.response.data);
+        setError(error.response.data.message);
       }else {
         setError("Something went wrong. Please try again.");
       }
+    }finally{
+      setLoading(false);
     }
   }
   return (
@@ -68,7 +68,6 @@ const Signup = () => {
           id="signup"
         />
         { error && <p className="error" style={{color: "red"}}>{error}</p>}
-        { success && <p className="error" style={{color: "green"}}>{success}</p>}
         <p className="no-account">Already have an account? <Link to="/login" className="login-link">Login</Link></p>
         <p className="or">OR</p>
         <input type="button" id="google" value="Continue with Google"/>

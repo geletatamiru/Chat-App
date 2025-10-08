@@ -4,6 +4,7 @@ import { loginApi, logoutApi, refreshApi } from "../../services/authApi";
 const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
+  const [emailForVerfication, setEmailForVerification] = useState(null);
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +47,7 @@ export const AuthProvider = ({children}) => {
     refreshAccessToken().finally(() => setIsLoading(false));
   }, []);
   return  (
-    <AuthContext.Provider value={{ user, accessToken, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, accessToken, login, logout, isLoading, setEmailForVerification, emailForVerfication }}>
       {children}
     </AuthContext.Provider>
   )

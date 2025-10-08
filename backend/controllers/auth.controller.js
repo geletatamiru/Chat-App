@@ -63,12 +63,13 @@ const signup = async (req, res) => {
 }
 
 const verifyEmail = async (req, res) => {
-  const {code} = req.body;
-
-  const user = await User.findOne({verificationToken: code, verificationTokenExpires: {$gt: Date.now()}})
+  const {email, code} = req.body;
+  console.log(email, code);
+  const user = await User.findOne({email, verificationToken: code, verificationTokenExpires: {$gt: Date.now()}})
 
   if(!user) return res.status(401).json({success: false, message: "Invalid or expired token"});
 
+  user.isVerified= true;
   user.verificationToken = undefined;
   user.verificationTokenExpires = undefined;
 
@@ -93,7 +94,7 @@ const login = async (req, res) => {
     return res.status(403).json({
       success: false,
       isVerfied: false,
-      message: "Your account is not verified. click 'Resend verification link."
+      message: "Your account is not verified."
     });
   }
 
@@ -147,7 +148,7 @@ const forgotPassword = async (req, res) => {
 
   const user = await User.findOne({email});
 
-  if(!user) res.status(400).json({success: false, message: "Email not Correct, Please enter the right email."});
+  if(!user) res.status(200).json({success: true, message: "If an account with that email exists, we've sent a password reset link."});
 
   if(!user.isVerified) res.status(400).json({success: false, message: "Please verify your account first."});
 
@@ -162,7 +163,7 @@ const forgotPassword = async (req, res) => {
   const resetUrl =`${process.env.CLIENT_URL}/reset-password/${resetPasswordToken}`;
   await sendResetPasswordEmail(user.email, 'Reset your Password', user.username, resetUrl)
   
-  res.status(200).json({success: true, message: 'Reset Password link sent to email.'})
+  res.status(200).json({success: true, message: "If an account with that email exists, we've sent a password reset link."})
 
 }
 

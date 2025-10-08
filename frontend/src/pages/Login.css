@@ -28,7 +28,7 @@
   text-align: center;
   margin: 0;
 }
-.login-form #google {
+.login-form #google , .resend-button {
   background-color: white;
   height: 40px;
   border-radius: 25px;
@@ -36,6 +36,12 @@
   color: black;
   font-size: 1rem;
   cursor: pointer;
+}
+.forgot-password {
+  text-decoration: none;
+  text-align: end;
+  color: black;
+  
 }
 .sign-up-link {
   text-decoration: none;
