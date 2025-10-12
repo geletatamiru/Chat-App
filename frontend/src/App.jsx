@@ -15,8 +15,7 @@ function App() {
         path="/"
         element={
           <ProtectedRoute>
-            {/* <ChatPage /> */}
-            ChatPage
+            <ChatPage />
           </ProtectedRoute>
         }
       />

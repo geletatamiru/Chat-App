@@ -10,13 +10,14 @@ const UserList = ({searchQuery}) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const {selectedUser, setSelectedUser, setUnreadCounts} = useSelectedUser();
-  const {token} = useAuth();
+  const {accessToken} = useAuth();
   useEffect(() => {
     const loadUsers = async () => {
       setLoading(true);
       try {
-        const res = await fetchUsers(token);
-        setUsers(res.data);
+        const data = await fetchUsers(accessToken);
+        console.log(users);
+        setUsers(data);
         setError("");
         setLoading(false);
       } catch (error) {
@@ -32,9 +33,9 @@ const UserList = ({searchQuery}) => {
     loadUsers();
     const loadUnreadCounts = async () => {
         try {
-            const res = await fetchUnreadCounts(token);
-            const countsArray = res.data;
-            const countsObject = countsArray.reduce((acc, curr) => {
+            const data = await fetchUnreadCounts(accessToken);
+            const countsArray = data;
+            const countsObject = countsArray?.reduce((acc, curr) => {
                 acc[curr.userId.toString()] = curr.count;
                 return acc;
             }, {});
@@ -47,9 +48,9 @@ const UserList = ({searchQuery}) => {
         }
     };
     loadUnreadCounts();
-  }, [token]);
+  }, [accessToken]);
 
-  const filteredUsers = users.filter((user) =>
+  const filteredUsers = users?.filter((user) =>
     user.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -58,7 +59,7 @@ const UserList = ({searchQuery}) => {
       {loading && <p>Loading Users...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {
-        filteredUsers.map(user => (
+        filteredUsers?.map(user => (
           <User 
             key={user._id} 
             user={user} 
@@ -66,7 +67,7 @@ const UserList = ({searchQuery}) => {
             isSelected={selectedUser?._id === user._id}
             onClick={async (user) => { 
               setSelectedUser(user)
-              await markMessageAsRead(user._id, token);
+              await markMessageAsRead(user._id, accessToken);
             }}/>
           )
         )

@@ -1,33 +1,35 @@
-const { User, validateUser } = require('../models/user');
+const { User } = require('../models/user');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const Joi = require('joi');
+const {signupSchema, loginSchema} = require("../validation/authValidation.js");
 const {createAccessToken, createRefreshToken, verifyAccessToken, hashToken} = require("../utils/token.js");
 const {sendVerificationEmail, sendVerificationSuccessEmail, sendResetPasswordEmail, sendResetSuccessEmail} = require("../utils/mailer.js");
 const RefreshToken = require('../models/refreshToken.js');
 
 const signup = async (req, res) => {
-    const { error } = validateUser(req.body);
-    if (error) return res.status(400).json({success: false, message: error.details[0].message});
-
-    const email = req.body.email.toLowerCase().trim();
+    const userSchema = signupSchema.parse(req.body);
+  
+    const email = userSchema.email.toLowerCase().trim();
 
     const existingUser = await User.findOne({ email });
 
+    if(existingUser && existingUser.providers.includes("google")){
+      res.status(400).json({success: false, message: "This email is registered with Google. Please sign in using Google."});
+    }
     if (existingUser) {
       if (existingUser.isVerified) {
         return res
           .status(400)
           .json({ success: false, message: "Email is already registered." });
       } else {
-        existingUser.password = await bcrypt.hash(req.body.password, 10);
+        existingUser.password = await bcrypt.hash(userSchema.password, 10);
         existingUser.verificationToken = crypto.randomInt(100000, 999999); 
         existingUser.verificationTokenExpires = Date.now() + 1 * 60 * 60 * 1000;
 
         await existingUser.save();
 
         await sendVerificationEmail(
-          email,
+          userSchema.email,
           "Verify your email",
           existingUser.verificationToken
         );
@@ -41,14 +43,15 @@ const signup = async (req, res) => {
     }
 
 
-    const hashed = await bcrypt.hash(req.body.password, 10);
+    const hashed = await bcrypt.hash(userSchema.password, 10);
     const verificationToken = crypto.randomInt(100000,999999)
 
     const user = new User({
-      username: req.body.username,
+      username: userSchema.username,
       email,
       password: hashed,
       verificationToken,
+      providers: ["local"],
       verificationTokenExpires: Date.now() +  1 * 60 * 60 * 1000,
     });
 
@@ -81,13 +84,15 @@ const verifyEmail = async (req, res) => {
 }
 
 const login = async (req, res) => {
-  const { error } = validateUserLogin(req.body);
-  if (error) return res.status(400).json({success: false, message: error.details[0].message});
+  const userSchema = loginSchema.parse(req.body);
 
-  const user = await User.findOne({email: req.body.email.toLowerCase().trim()});
+  const user = await User.findOne({email: userSchema.email.toLowerCase().trim()});
   if(!user) return res.status(400).json({success: false, message: 'Invalid email or password'}); 
   
-  const isValid = await bcrypt.compare(req.body.password, user.password);
+  if(user && !user.providers.includes("local")){
+    res.status(400).json({success: false, message: "This email is registered with Google. Please sign in using Google."});
+  }
+  const isValid = await bcrypt.compare(userSchema.password, user.password);
   if(!isValid) return res.status(400).json({success: false, message: 'Invalid email or password'});
 
   if (!user.isVerified) {
@@ -230,13 +235,6 @@ const refresh = async (req, res) => {
   res.status(200).json({success: true, message: 'Successfully refreshed', accessToken, user: {  ...user._doc, password: undefined }})
 }
 
-function validateUserLogin(user){
-  const schema = Joi.object({
-    email: Joi.string().email().min(5).max(255).required(),
-    password: Joi.string().min(5).max(255).required()
-  })
-  return schema.validate(user);
-}
 
 module.exports = {signup, verifyEmail, login, resendVerification, forgotPassword, resetPassword, logout, refresh};
 

@@ -13,20 +13,19 @@ import "./SideBar.css";
 
 const SideBar = ({isSidebarOpen}) => {
   const navigate = useNavigate();
-  const { token, setToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const {setSelectedUser, setUnreadCounts, setOnlineUsers} = useSelectedUser();
-  const user = jwtDecode(token);
   
   const [searchQuery, setSearchQuery] = useState("");
 
   function handleLogout(){
-    setToken(null);
-    localStorage.removeItem("token");
-    setSelectedUser(null);
-    setUnreadCounts({});
-    setOnlineUsers([])
-    disconnectSocket();
-    navigate("/login");
+    // setToken(null);
+    // localStorage.removeItem("token");
+    // setSelectedUser(null);
+    // setUnreadCounts({});
+    // setOnlineUsers([])
+    // disconnectSocket();
+    // navigate("/login");
 
   }
   return (

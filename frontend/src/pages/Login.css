@@ -24,11 +24,12 @@
   font-size: 1rem;
   cursor: pointer;
 }
+
 .login-form > .or,.login-form > .no-account, .error, .success {
   text-align: center;
   margin: 0;
 }
-.login-form #google , .resend-button {
+.login-form .resend-button {
   background-color: white;
   height: 40px;
   border-radius: 25px;
@@ -37,6 +38,20 @@
   font-size: 1rem;
   cursor: pointer;
 }
+.login-form #google {
+  background-color: white;
+  height: 40px;
+  border-radius: 25px;
+  border: 1px solid gray;
+  color: black;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .forgot-password {
   text-decoration: none;
   text-align: end;

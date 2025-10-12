@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const Joi = require('joi');
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -24,6 +22,8 @@ const userSchema = new mongoose.Schema({
     minlength: 5,
     maxlength: 1024,
   },
+  googleId: String,
+  providers: [{ type: String }],
   isVerified: { type: Boolean, default: false },
   verificationToken: String,
   verificationTokenExpires: Date,
@@ -34,14 +34,4 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-function validateUser(user){
-  const schema = Joi.object({
-    username: Joi.string().min(3).max(50).required(),
-    email: Joi.string().email().min(5).max(255).required(),
-    password: Joi.string().min(5).max(255).required()
-  })
-  return schema.validate(user);
-}
-
-
-module.exports = { User, validateUser};
+module.exports = { User};

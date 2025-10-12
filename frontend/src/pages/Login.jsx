@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useAuth } from '../context/AuthContext';
 import Input from '../components/Input';
 import { resendVerification } from '../../services/authApi';
+import { loginSchema } from '../validation/authSchema';
+import { ThreeDot } from 'react-loading-indicators';
+import {z} from "zod";
 import "./Login.css"; 
 
 const Login = () => {
@@ -40,6 +43,8 @@ const Login = () => {
     setError("");
     setLoading(true);
     try {
+      loginSchema.parse(formData);
+
       await login(formData);
       setFormData({ email: "", password: "" });
       // connectSocket(receivedToken);
@@ -47,7 +52,9 @@ const Login = () => {
       navigate('/');
     } catch (error) {
       setLoading(false);
-      if(error.response && error.response.status >= 400 && error.response.status < 500){
+      if (error instanceof z.ZodError) {
+        setError(error.issues[0].message);
+      }else if(error.response && error.response.status >= 400 && error.response.status < 500){
         if(error.response.status === 403){
           setEmailForVerification(formData.email);
           setShowVerificationButton(true);
@@ -79,13 +86,19 @@ const Login = () => {
           value={formData.password}
           onChange={handleChange}
         />
-        <input type="submit" value={`${loading ? 'Logging in...' : 'Login'}`} id="login"/>
+        <button type="submit" id="login" disabled={loading}>
+          {loading ? (
+            <ThreeDot color="white" size="medium" text="" textColor="" />
+          ) : (
+            "Login"
+          )}
+        </button>
         { error && <p className="error" style={{color: "red"}}>{error}</p>}
         { showVerificationButton && <button className='resend-button' type="button" onClick={handleResend} disabled={isLoading}>{`${isLoading ? 'Resending...' : 'Resend Verification'}`}</button>}
         <Link to="/forgot-password" className='forgot-password'>Forgot Password?</Link>
         <p className='no-account'>Don't have an account? <Link to="/signup" className="sign-up-link">Sign up</Link></p>
         <p className='or'>OR</p>
-        <input type="button" id="google" value="Continue with Google"/>
+        <Link to="http://localhost:5000/auth/google" id="google">Continue with Google</Link>
       </form>
     </div>
   )

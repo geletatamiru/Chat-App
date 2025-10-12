@@ -35,6 +35,10 @@
   color: black;
   font-size: 1rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 .login-link {
   text-decoration: none;

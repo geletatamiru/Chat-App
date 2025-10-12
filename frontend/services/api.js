@@ -1,39 +1,37 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
-const API_URL = "https://chat-app-0l35.onrender.com/api";
+// const API_URL = "https://chat-app-0l35.onrender.com/api";
 
 export const fetchUsers = (token) => {
-  return axios.get(`${API_URL}/users`, {
+  const response = axiosInstance.get('/users', {
     headers: {
-      "x-auth-token": token
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
+  return response.data;
 }
 export const fetchMessages = (token, id) => {
-  return axios.get(`${API_URL}/messages/${id}`, {
+  const response = axiosInstance.get(`/messages/${id}`, {
     headers: {
-      "x-auth-token": token
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
+  return response.data;
 }
 
-export const loginUser = (formData) => {
-   return axios.post(`${API_URL}/auth`, formData);
-}
-
-export const registerUser = (formData) => {
-   return axios.post(`${API_URL}/register`, formData);
-}
 export const fetchUnreadCounts = (token) => {
-  return axios.get(`${API_URL}/messages/unread/count`, {
-    headers: { 
-      'x-auth-token': token 
-    }
-})};
-export const markMessageAsRead = (senderId, token) => {
-  return axios.put(`${API_URL}/messages/mark-read`, { senderId }, {
+  const response = axiosInstance.get('/messages/unread/count', {
     headers: {
-      'x-auth-token': token
-    }
-});
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response.data;
+};
+export const markMessageAsRead = (senderId, token) => {
+  const response = axiosInstance.put(`/messages/mark-read`, { senderId }, {
+    headers: {
+    Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
 }

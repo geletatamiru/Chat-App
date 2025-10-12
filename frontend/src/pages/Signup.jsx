@@ -3,7 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { signupApi } from "../../services/authApi";
 import Input from "../components/Input";
 import { useAuth } from "../context/AuthContext";
+import { signupSchema } from "../validation/authSchema";
+import { ThreeDot } from "react-loading-indicators";
+import z from "zod";
 import "./Signup.css"; 
+
 const Signup = () => {
   const [formData, setFormData] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState("");
@@ -21,14 +25,17 @@ const Signup = () => {
     setLoading(true);
 
     try {
+      signupSchema.parse(formData);
+
       await signupApi(formData);
       setEmailForVerification(formData.email);
       setFormData({ username: "", email: "", password: "" });
       navigate('/verify');
       
     } catch (error) {
-      console.log(error);
-      if(error.response && error.response.status >= 400 && error.response.status < 500){
+      if (error instanceof z.ZodError) {
+        setError(error.issues[0].message);
+      }else if(error.response && error.response.status >= 400 && error.response.status < 500){
         setError(error.response.data.message);
       }else {
         setError("Something went wrong. Please try again.");
@@ -62,15 +69,17 @@ const Signup = () => {
           onChange={handleChange}
           value={formData.password}
         />
-        <input 
-          type="submit" 
-          value={`${loading ? 'Signing up...' : 'Signup'}`} 
-          id="signup"
-        />
+        <button type="submit" id="signup" disabled={loading}>
+          {loading ? (
+            <ThreeDot color="white" size="medium" text="" textColor="" />
+          ) : (
+            "Signup"
+          )}
+        </button>
         { error && <p className="error" style={{color: "red"}}>{error}</p>}
         <p className="no-account">Already have an account? <Link to="/login" className="login-link">Login</Link></p>
         <p className="or">OR</p>
-        <input type="button" id="google" value="Continue with Google"/>
+        <Link to="http://localhost:5000/auth/google" id="google">Continue with Google</Link>
       </form>
     </div>
   )

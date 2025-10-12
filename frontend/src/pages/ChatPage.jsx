@@ -7,17 +7,18 @@ import ChatWindow from "../components/chat/ChatWindow";
 import "./ChatPage.css";
 
 const ChatPage = () => {
-  const {currentUserId, token} = useAuth();
+  const {user, accessToken} = useAuth();
   const { setOnlineUsers} = useSelectedUser();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      connectSocket(token);
+    if (accessToken) {
+      console.log(accessToken);
+      connectSocket(accessToken);
     }
     const socket = getSocket();
-    if(currentUserId){
-       socket.emit("add_user", currentUserId);
+    if(user._id){
+       socket.emit("add_user", user._id);
     }
     socket.on('online-users', (users) => {
       setOnlineUsers(users);
@@ -26,14 +27,14 @@ const ChatPage = () => {
       socket.off('online-users')
       socket.off('add_user')
     }
-  }, [currentUserId]);
+  }, [user._id]);
   return (
     <div className="chat-page">
       <button className="toggle-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen) }>
           ☰
       </button>
       <SideBar isSidebarOpen={isSidebarOpen}/>
-      <ChatWindow isSidebarOpen={isSidebarOpen}/>
+      {/* <ChatWindow isSidebarOpen={isSidebarOpen}/> */}
     </div>
   )
 }

@@ -1,8 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { Message, validateMessage} = require('../models/message');
+const { Message} = require('../models/message');
 const auth = require('../middleware/auth');
 const asyncMiddleware = require('../middleware/async');
+const messageSchema = require('../validation/messageValidation');
 const router = express.Router();
 
 router.get('/:id', auth,asyncMiddleware( async (req, res) => {
@@ -32,10 +33,8 @@ router.get('/unread/count', auth,asyncMiddleware( async (req, res) => {
 
 }));
 router.post('/', auth,asyncMiddleware( async (req, res) => {
-  const { error } = validateMessage(req.body);
-  if(error) return res.status(400).send(error.details[0].message);
-
-  const { receiver, text } = req.body;
+  const parsedMessage = messageSchema.parse(req.body);
+  const { receiver, text } = parsedMessage;
 
   const message = new Message({
     sender: req.user.id,

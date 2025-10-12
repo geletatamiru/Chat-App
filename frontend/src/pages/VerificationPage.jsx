@@ -41,7 +41,7 @@ const VerificationPage = () => {
     <div className='verify-container'>
       <div className="verify-card">
         <h2>Verify Your Email</h2>
-        <p>Enter the 6-digit code sent to {emailForVerfication}</p>
+        <p>If an account with that email exists, We have sent the 6-digit code sent to {emailForVerfication}</p>
         <form onSubmit={handleVerify}>
           <input 
             type="text" 
