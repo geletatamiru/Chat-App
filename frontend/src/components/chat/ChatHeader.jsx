@@ -1,8 +1,25 @@
+import { useEffect, useState } from "react";
 import { useSelectedUser } from "../../context/SelectedUserContext";
 import profile from "../../assets/default-profile.jpg";
+import { getSocket } from "../../../socket/socket";
+
 const ChatHeader = () => {
   const {onlineUsers, selectedUser} = useSelectedUser();
-   const status = onlineUsers.includes(selectedUser._id) ? "Online" : "Offline";
+  const [isTyping, setIsTyping] = useState(false);
+  const socket = getSocket();
+  const status = onlineUsers.includes(selectedUser._id) ? "Online" : "Offline";
+
+  useEffect(() => {
+    socket.on("typing-acknowledged", (data) => {
+      console.log(data);
+      setIsTyping(true);
+    })
+    socket.on("stop_typing-acknowledged", (data) => {
+      console.log(data);
+      setIsTyping(false);
+    })
+  }, [selectedUser])
+
   return (
     <div className="chat-header">
       <div className="profile-container">
@@ -13,7 +30,9 @@ const ChatHeader = () => {
           <p className={`status ${status === "Online" ? "status-online pulse" : "status-offline"}`}>
             <span className={`status-dot ${status === "Online" ? "status-dot-online" : "status-dot-offline"}`}></span>
             {status}
+            {isTyping && <span style={{color: "white"}}>Typing...</span>}
           </p>
+          
       </div>
     </div>
   );

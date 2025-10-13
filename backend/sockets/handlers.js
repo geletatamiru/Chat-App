@@ -36,15 +36,26 @@ function handleSocketConnection(socket, io, onlineUsers) {
     }
   });
 
-  socket.on("message_seen", (senderId) => {
-    const senderSocketId = onlineUsers.get(senderId);
+  socket.on("message_seen", (sender) => {
+    const senderSocketId = onlineUsers.get(sender);
     if(senderSocketId){
         io.to(senderSocketId).emit('seen_acknowledged', {
           receiverId: socket.userId
         })
       }
   })
-
+  socket.on("typing", (receiver) => {
+    const receiverSocketId = onlineUsers.get(receiver);
+    if(receiverSocketId){
+      io.to(receiverSocketId).emit('typing-acknowledged', {sender: socket.userId})
+    }
+  })
+  socket.on("stop_typing", (receiver) => {
+    const receiverSocketId = onlineUsers.get(receiver);
+    if(receiverSocketId){
+      io.to(receiverSocketId).emit('stop_typing-acknowledged', {sender: socket.userId})
+    }
+  })
   socket.on("disconnect", () => {
     logger.info(`Socket disconnected: ${socket.id}`);
     
