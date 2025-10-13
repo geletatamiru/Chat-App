@@ -100,9 +100,13 @@
   display: flex;
   padding: 10px;
   border-top: 1px solid #333;
+  flex-direction: column;
 }
-
-.chat-input input {
+.input-container {
+  width: 100%;
+  display: flex;
+}
+.input-container input {
   flex: 1;
   padding: 10px;
   border: none;

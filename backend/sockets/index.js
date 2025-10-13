@@ -7,15 +7,14 @@ const onlineUsers = new Map();
 function setupSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
+      origin: true,
+      methods: ["GET", "POST", "PACTCH", "PUT", "DELETE"],
       credentials: true,
     }
   });
 
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
-    console.log(token);
     if (!token) {
       console.log("❌ No token provided");
       return next(new Error("Authentication error"));

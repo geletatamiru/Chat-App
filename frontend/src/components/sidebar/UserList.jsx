@@ -3,6 +3,8 @@ import { useSelectedUser } from "../../context/SelectedUserContext";
 import { useAuth } from "../../context/AuthContext";
 import { fetchUnreadCounts, fetchUsers } from "../../../services/api";
 import { markMessageAsRead } from "../../../services/api";
+import { ThreeDot } from "react-loading-indicators";
+import { getSocket } from "../../../socket/socket";
 import User from "./User";
 
 const UserList = ({searchQuery}) => {
@@ -16,8 +18,7 @@ const UserList = ({searchQuery}) => {
       setLoading(true);
       try {
         const data = await fetchUsers(accessToken);
-        console.log(users);
-        setUsers(data);
+        setUsers(data?.users || []);
         setError("");
         setLoading(false);
       } catch (error) {
@@ -34,7 +35,7 @@ const UserList = ({searchQuery}) => {
     const loadUnreadCounts = async () => {
         try {
             const data = await fetchUnreadCounts(accessToken);
-            const countsArray = data;
+            const countsArray = data?.counts || [];
             const countsObject = countsArray?.reduce((acc, curr) => {
                 acc[curr.userId.toString()] = curr.count;
                 return acc;
@@ -42,33 +43,55 @@ const UserList = ({searchQuery}) => {
 
             setUnreadCounts(countsObject);
         } catch (error) {
+          if(error.response && error.response.status >= 400 && error.response.status < 500){
+            setError(error.response.data.message);
+          }else {
             setError("Failed to fetch unread counts");
-            console.log(error);
+          }
             setUnreadCounts({});
         }
     };
     loadUnreadCounts();
   }, [accessToken]);
 
+
   const filteredUsers = users?.filter((user) =>
     user.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
+  const handleClick = async (user) => {
+    const socket = getSocket();
+    socket.emit('message_seen', user._id);
+    setSelectedUser(user)
+    
+    setUnreadCounts((prev) => (
+      {
+        ...prev,
+        [user._id]: 0
+      }
+    ))
+    try {
+      await markMessageAsRead(user._id, accessToken);
+    } catch (error) {
+      if (error.response && error.response.status >= 400 && error.response.status < 500) {
+        setError(error.response.data);
+      } else {
+        setError("Something went wrong while fetching users.");
+      }
+    }
+             
+  }
   return (
     <div className="user-list">
-      {loading && <p>Loading Users...</p>}
+      {loading && <ThreeDot color="green" size="medium" text="" textColor="" />}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {
         filteredUsers?.map(user => (
           <User 
             key={user._id} 
             user={user} 
-            name={user.username} 
             isSelected={selectedUser?._id === user._id}
-            onClick={async (user) => { 
-              setSelectedUser(user)
-              await markMessageAsRead(user._id, accessToken);
-            }}/>
+            onClick={handleClick}
+            />
           )
         )
       }

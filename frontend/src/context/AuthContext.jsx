@@ -22,11 +22,12 @@ export const AuthProvider = ({children}) => {
 
   const logout = async () => {
     try {
-      await loginApi();
+      await logoutApi();
     } catch (error) {
     } finally {
       setUser(null);
       setAccessToken(null);
+      
     }
   };
   const refreshAccessToken = async () => {

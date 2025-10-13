@@ -8,32 +8,33 @@ import {connectSocket, getSocket} from "../../../socket/socket.js";
 import { fetchMessages } from "../../../services/api.js";
 import "./ChatWindow.css";
 
-const ChatWindow = ({isSidebarOpen}) => {
+const ChatWindow = ({isSidebarOpen, setIsSidebarOpen}) => {
   const { selectedUser, setUnreadCounts } = useSelectedUser();
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState("");  
-  const { token, currentUserId } = useAuth();
+  const { accessToken, user } = useAuth();
   
   useEffect(() => {
-    connectSocket(token);
+    if(accessToken){
+      connectSocket(accessToken);
+    }
   }, []);
 
   useEffect(() => {
       const socket = getSocket();
       socket.on('receive_message', (data) => {
-        if(data.senderId === selectedUser?._id){
-          setMessages(prev => [...prev, { sender: data.senderId, text: data.text, updatedAt: data.updatedAt}]);
+        if(data.sender === selectedUser?._id){
+          setMessages(prev => [...prev, { sender: data.sender, receiver: data.receiver, text: data.text, updatedAt: data.updatedAt}]);
           socket.emit('message_seen', selectedUser._id)
         }else {
           setUnreadCounts((prev) => ({
           ...prev,
-          [data.senderId]: (prev[data.senderId] || 0) + 1
+          [data.sender]: (prev[data.sender] || 0) + 1
         }));
         }
       });
 
       socket.on('seen_acknowledged', ({receiverId}) => {
-        console.log(receiverId);
         if (receiverId === selectedUser?._id) {
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
@@ -53,18 +54,18 @@ const ChatWindow = ({isSidebarOpen}) => {
 
     const loadMessages = async () => {
       try {
-        const res = await fetchMessages(token, selectedUser._id)
-        setMessages(res.data);
+        const data = await fetchMessages(accessToken, selectedUser._id)
+        setMessages(data.messages);
       } catch (error) {
         if (error.response && error.response.status >= 400 && error.response.status < 500) {
-          setError(error.response.data);
+          setError(error.response.data.message);
         } else {
           setError("Something went wrong while fetching messages.");
         }
       };
     };
     loadMessages();
-  }, [selectedUser, token]);
+  }, [selectedUser, accessToken]);
 
   if (!selectedUser) {
     return (
@@ -80,9 +81,9 @@ const ChatWindow = ({isSidebarOpen}) => {
     <div className={`chat-window ${isSidebarOpen ? 'with-sidebar' : 'full-width'}`}>
       {error ? <p style={{ color: "red" }}>{error}</p> : 
       <>
-        <ChatHeader name={selectedUser.username} />
-        <MessageList messages={messages} currentUserId={currentUserId}/>
-        <ChatInput selectedUser={selectedUser} setMessages={setMessages} />
+        <ChatHeader />
+        <MessageList messages={messages} currentUserId={user.id}/>
+        <ChatInput selectedUser={selectedUser} setMessages={setMessages} setIsSidebarOpen={setIsSidebarOpen}/>
       </>
       }
     </div>

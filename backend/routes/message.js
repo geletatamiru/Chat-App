@@ -1,75 +1,13 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const { Message} = require('../models/message');
 const auth = require('../middleware/auth');
 const asyncMiddleware = require('../middleware/async');
-const messageSchema = require('../validation/messageValidation');
+const {getMessages, getUnreadCounts, createMessage, updateMessage, deleteMessage} =  require("../controllers/message.controller")
 const router = express.Router();
 
-router.get('/:id', auth,asyncMiddleware( async (req, res) => {
-  if(!mongoose.Types.ObjectId.isValid(req.params.id))
-    return res.status(400).send('Invalid receiver Id')
+router.get('/:id', auth, asyncMiddleware(getMessages))
+router.get('/unread/count', auth, asyncMiddleware(getUnreadCounts));
+router.post('/', auth, asyncMiddleware(createMessage))
+router.put('/mark-read', auth, asyncMiddleware(updateMessage));
+router.delete('/:id', auth, asyncMiddleware(deleteMessage));
 
-  const otherUserId = req.params.id;
-  const currentUserId = req.user.id;
-  const messages = await Message.find({
-    $or: [
-      {sender: currentUserId, receiver: otherUserId},
-      {sender: otherUserId, receiver: currentUserId},
-    ]
-  }).sort('createdAt');
-
-  res.send(messages);
-
-}))
-router.get('/unread/count', auth,asyncMiddleware( async (req, res) => {
-  const receiverId = new mongoose.Types.ObjectId(req.user.id);
-  const counts = await Message.aggregate([
-    { $match: { receiver: receiverId, read: false }},  
-    { $group: { _id: "$sender", count: { $sum: 1 }}},
-    { $project: { userId: "$_id", count: 1, _id: 0 }}
-  ]);
-  res.send(counts); 
-
-}));
-router.post('/', auth,asyncMiddleware( async (req, res) => {
-  const parsedMessage = messageSchema.parse(req.body);
-  const { receiver, text } = parsedMessage;
-
-  const message = new Message({
-    sender: req.user.id,
-    receiver,
-    text
-  })
-  await message.save();
-  res.status(201).send(message);
-
-}))
-router.put('/mark-read', auth, asyncMiddleware(async (req, res) => {
-
-  const {senderId} = req.body;
-  const receiverId = req.user.id;
-  const result = await Message.updateMany(
-      { sender: new mongoose.Types.ObjectId(senderId), receiver: new mongoose.Types.ObjectId(receiverId), read: false },
-      { $set: { read: true } }
-    );
-    
-    return res.status(200).json({
-      message: 'Messages marked as read.',
-    });
-}));
-
-router.delete('/:id', auth, asyncMiddleware(async (req, res) => {
-  const messageId = req.params.id;
-  const userId = req.user.id;
-  const message = await Message.findById(messageId);
-  if(!message) return res.status(404).send({error: 'Message not found'});
-
-  if(message.sender.toString() !== userId && message.receiver.toString() !== userId){
-    return res.status(403).send({error: 'Not authorized to delete this message'})
-  }
-
-  await Message.findByIdAndDelete(messageId);
-  res.send({message: 'Message deleted successfully'})
-}))
 module.exports = router;

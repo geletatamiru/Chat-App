@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.get('/', auth, asyncMiddleware(async (req, res) => {
     const users = await User.find({ _id: { $ne: req.user.id } }).select("-password");
-    res.send(users);
+    res.json({success: true, message: "successfully fetched users.",users});
 }))
 module.exports = router;

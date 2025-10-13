@@ -232,7 +232,7 @@ const refresh = async (req, res) => {
   }
   const accessToken = createAccessToken(user);
 
-  res.status(200).json({success: true, message: 'Successfully refreshed', accessToken, user: {  ...user._doc, password: undefined }})
+  res.status(200).json({success: true, message: 'Successfully refreshed', accessToken, user: { id: user._id, username: user.username}})
 }
 
 

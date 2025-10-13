@@ -1,30 +1,38 @@
-const { Message, validateMessage } = require('../models/message');
+const { z } = require('zod');
+const { Message } = require('../models/message');
 const logger = require('../utils/logger');
+const messageSchema = require("../validation/messageValidation");
 
 function handleSocketConnection(socket, io, onlineUsers) {
   logger.info(`Socket connected: ${socket.id}`);
 
   socket.on("add_user", (userId) => {
     onlineUsers.set(userId, socket.id);
+    console.log(onlineUsers);
     io.emit('online-users', Array.from(onlineUsers.keys()))
   });
 
-  socket.on("send_message", async ({ receiverId, text }) => {
-    const {error} = validateMessage({ receiver: receiverId, text: text});
-    if (error) {
-      return socket.emit("error_message", { error: error.details[0].message });
-    }
+  socket.on("send_message", async ({ receiver, text }, callback) => {
+    
     try {
-      const message = new Message({ sender: socket.userId, receiver: receiverId, text: text });
+      const parsedMessage = messageSchema.parse({receiver, text});
+      const message = new Message({ sender: socket.userId, receiver: parsedMessage.receiver, text: parsedMessage.text });
       await message.save();
 
-      const receiverSocketId = onlineUsers.get(receiverId);
+      const receiverSocketId = onlineUsers.get(parsedMessage.receiver);
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit("receive_message", { senderId: socket.userId, text, read:  message.read, updatedAt: message.updatedAt});
+        io.to(receiverSocketId).emit("receive_message", message);
       }
+      callback({success: true, message: "message sent", data: message});
     } catch (error) {
-      logger.error(`Error saving message: ${error.message}`);
-      socket.emit("error_message", { error: "Failed to send message." });
+      if(error instanceof z.ZodError){
+        logger.error(error.issues[0].message);
+        callback({success: false, message: "Error sending message", data: error.issues[0].message});
+      }else {
+        logger.error(`Error saving message: ${error.message}`);
+        callback({success: false, message: "Error sending message", data: "Server error. Failed to send message"});
+      }
+      
     }
   });
 
