@@ -1,0 +1,40 @@
+.delete-container {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  padding: 15px 20px;
+  border-radius: 7px;
+}
+.delete-container > h2 {
+  color: black;
+  margin-bottom: 0;
+}
+.delete-container > p {
+  color: gray;
+}
+.delete-container > .buttons {
+  align-self: flex-end;
+  display: flex;
+  gap: 20px;
+  padding: 10px 5px;
+}
+.buttons .cancel-btn, .buttons .delete-btn {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+}
+.buttons .cancel-btn {
+  color: lightblue;
+}
+.buttons .delete-btn {
+  color: rgba(255, 0, 0, 0.534);
+}
+.buttons .cancel-btn:hover {
+  color: blue;
+}
+.buttons .delete-btn:hover {
+  color: red;
+}
+

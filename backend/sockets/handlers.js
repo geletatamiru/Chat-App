@@ -55,7 +55,28 @@ function handleSocketConnection(socket, io, onlineUsers) {
     if(receiverSocketId){
       io.to(receiverSocketId).emit('stop_typing-acknowledged', {sender: socket.userId})
     }
-  })
+  });
+
+  socket.on("delete-message", async ({ msgId, receiver}, callback) => {
+    console.log("delete message");
+    try {
+      const deletedMessage = await Message.findByIdAndDelete(msgId);
+      if(deletedMessage){
+        callback({success: true, message: "Message deleted successfully"});
+        const receiverSocketId = onlineUsers.get(receiver);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("message-deleted", msgId);
+        }
+      }else {
+        callback({success: true, message: "No message found."});
+      }
+      
+    } catch (error) {
+      logger.error(`Error saving message: ${error.message}`);
+      callback({success: false, message: "Server error. Failed to delete message"}); 
+    }
+  });
+
   socket.on("disconnect", () => {
     logger.info(`Socket disconnected: ${socket.id}`);
     

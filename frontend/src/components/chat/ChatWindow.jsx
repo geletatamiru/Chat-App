@@ -44,9 +44,14 @@ const ChatWindow = ({isSidebarOpen, setIsSidebarOpen}) => {
           ));
           }
         })
+
+      socket.on('message-deleted', (msgId) => {
+        setMessages(prev => (prev.filter(msg => msg._id !== msgId)))
+      }) 
       return () => {
         socket.off('receive_message')
         socket.off('seen_acknowledged')
+        socket.off('message-deleted')
       }
   }, [selectedUser])
   useEffect(() => {
@@ -82,7 +87,7 @@ const ChatWindow = ({isSidebarOpen, setIsSidebarOpen}) => {
       {error ? <p style={{ color: "red" }}>{error}</p> : 
       <>
         <ChatHeader />
-        <MessageList messages={messages} currentUserId={user.id}/>
+        <MessageList messages={messages} setMessages={setMessages} currentUserId={user.id} selectedUserId={selectedUser?._id}/>
         <ChatInput selectedUser={selectedUser} setMessages={setMessages} setIsSidebarOpen={setIsSidebarOpen}/>
       </>
       }

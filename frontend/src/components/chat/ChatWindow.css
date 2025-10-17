@@ -54,6 +54,16 @@
    scrollbar-width: none;
   -ms-overflow-style: none;  
 }
+.message-list .copy-success {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: white;
+  text-align: center;
+  padding: 10px 15px;
+  border-radius: 5px;
+  position: fixed;
+  top: 80%;
+  left: 50%;
+}
 .message-list::-webkit-scrollbar {
   display: none; 
 }
@@ -127,6 +137,7 @@
 .send-button .send-icon {
   width: 20px;
 }
+
 @media (max-width: 768px) {
   .chat-window.full-width {
     margin-left: 0;
