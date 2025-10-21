@@ -19,11 +19,13 @@ const ChatInput = ({setMessages, selectedUser, setIsSidebarOpen}) => {
       setError("");
       if(response.success){
         const filteredMessage = {
+          _id: response.data._id,
           sender: response.data.sender,
           text: response.data.text,
           receiver: response.data.receiver,
           updatedAt: response.data.updatedAt,
-          read: response.data.read
+          read: response.data.read,
+          edited: response.data.edited
         }
         setMessages((prev) => [...prev, filteredMessage]);
         setMessage("");

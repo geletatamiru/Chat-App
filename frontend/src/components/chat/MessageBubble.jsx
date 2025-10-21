@@ -1,6 +1,6 @@
 import sent from "../../assets/sent.png";
 import seen from "../../assets/seen.png";
-const MessageBubble = ({ from, text, time, read, onClick, id }) => {
+const MessageBubble = ({ from, text, time, read, onClick, id, edited }) => {
   const formatTime = (isoString) => {
   const date = new Date(isoString);
     return date.toLocaleTimeString([], {
@@ -12,10 +12,13 @@ const MessageBubble = ({ from, text, time, read, onClick, id }) => {
 
   const formatedTime = formatTime(time);
 
+
  
   return (
-    <div className={`message-bubble ${from === "me" ? "me" : "other"}`} onClick={() => onClick(text, id)}>
+    <div className={`message-bubble ${from === "me" ? "me" : "other"}`} onClick={() => onClick(text, id)} >
       <p className="text">{text}</p>
+      {edited && <p className="edited">edited</p>}
+      
       <p className="time">{formatedTime}</p>
       {
         from === "me" && 

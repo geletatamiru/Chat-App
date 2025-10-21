@@ -24,7 +24,7 @@ const ChatWindow = ({isSidebarOpen, setIsSidebarOpen}) => {
       const socket = getSocket();
       socket.on('receive_message', (data) => {
         if(data.sender === selectedUser?._id){
-          setMessages(prev => [...prev, { sender: data.sender, receiver: data.receiver, text: data.text, updatedAt: data.updatedAt}]);
+          setMessages(prev => [...prev, { _id: data._id, sender: data.sender, receiver: data.receiver, text: data.text, updatedAt: data.updatedAt, edited: data.edited}]);
           socket.emit('message_seen', selectedUser._id)
         }else {
           setUnreadCounts((prev) => ({
@@ -48,10 +48,14 @@ const ChatWindow = ({isSidebarOpen, setIsSidebarOpen}) => {
       socket.on('message-deleted', (msgId) => {
         setMessages(prev => (prev.filter(msg => msg._id !== msgId)))
       }) 
+      socket.on('message-edited', ({msgId, text}) => {
+        setMessages(prev => (prev.map(msg => msg._id === msgId ? {...msg, text, edited: true} : msg)))
+      }) 
       return () => {
         socket.off('receive_message')
         socket.off('seen_acknowledged')
-        socket.off('message-deleted')
+        socket.off('message-deleted') 
+        socket.off('message-edited') 
       }
   }, [selectedUser])
   useEffect(() => {

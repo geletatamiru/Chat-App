@@ -68,12 +68,32 @@ function handleSocketConnection(socket, io, onlineUsers) {
           io.to(receiverSocketId).emit("message-deleted", msgId);
         }
       }else {
-        callback({success: true, message: "No message found."});
+        callback({success: false, message: "No message found."});
       }
       
     } catch (error) {
-      logger.error(`Error saving message: ${error.message}`);
+      logger.error(`Error deleting message: ${error.message}`);
       callback({success: false, message: "Server error. Failed to delete message"}); 
+    }
+  });
+
+  socket.on("edit-message", async ({ msgId, text, receiver}, callback) => {
+    console.log("edit message");
+    try {
+      const editedMessage = await Message.findByIdAndUpdate(msgId, {$set: {text, edited: true}});
+      if(editedMessage){
+        callback({success: true, message: "Message edited successfully"});
+        const receiverSocketId = onlineUsers.get(receiver);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("message-edited", {msgId, text});
+        }
+      }else {
+        callback({success: false, message: "No message found."});
+      }
+      
+    } catch (error) {
+      logger.error(`Error editing message: ${error.message}`);
+      callback({success: false, message: "Server error. Failed to edit message"}); 
     }
   });
 

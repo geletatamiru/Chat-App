@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { boolean } = require('zod');
 
 const messageSchema = new mongoose.Schema({
   sender: {
@@ -17,6 +18,10 @@ const messageSchema = new mongoose.Schema({
     minlength: 1,
   },
   read: {
+    type: Boolean,
+    default: false
+  },
+  edited: {
     type: Boolean,
     default: false
   }

@@ -11,11 +11,9 @@ const ChatHeader = () => {
 
   useEffect(() => {
     socket.on("typing-acknowledged", (data) => {
-      console.log(data);
       setIsTyping(true);
     })
     socket.on("stop_typing-acknowledged", (data) => {
-      console.log(data);
       setIsTyping(false);
     })
   }, [selectedUser])
