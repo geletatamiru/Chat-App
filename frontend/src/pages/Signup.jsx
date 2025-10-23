@@ -79,7 +79,7 @@ const Signup = () => {
         { error && <p className="error" style={{color: "red"}}>{error}</p>}
         <p className="no-account">Already have an account? <Link to="/login" className="login-link">Login</Link></p>
         <p className="or">OR</p>
-        <Link to={`${import.meta.env.VITE_BASE_URL}/auth/google`} id="google">Continue with Google</Link>
+        <a href="http://localhost:5000/auth/google" id="google">Continue with Google</a>
       </form>
     </div>
   )

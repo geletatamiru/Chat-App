@@ -47,7 +47,6 @@ const Login = () => {
 
       await login(formData);
       setFormData({ email: "", password: "" });
-      // connectSocket(receivedToken);
       setLoading(false);
       navigate('/');
     } catch (error) {
@@ -66,6 +65,7 @@ const Login = () => {
       }
     }
   }
+
   return (
     <div className="login-container">
       <h1>Welcome back</h1>
@@ -98,7 +98,7 @@ const Login = () => {
         <Link to="/forgot-password" className='forgot-password'>Forgot Password?</Link>
         <p className='no-account'>Don't have an account? <Link to="/signup" className="sign-up-link">Sign up</Link></p>
         <p className='or'>OR</p>
-        <Link to={`${import.meta.env.VITE_BASE_URL}/auth/google`} id="google">Continue with Google</Link>
+        <a href={`${import.meta.env.VITE_BASE_URL}/auth/google`} id="google">Continue with Google</a>
       </form>
     </div>
   )
