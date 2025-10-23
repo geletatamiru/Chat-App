@@ -98,7 +98,7 @@ const Login = () => {
         <Link to="/forgot-password" className='forgot-password'>Forgot Password?</Link>
         <p className='no-account'>Don't have an account? <Link to="/signup" className="sign-up-link">Sign up</Link></p>
         <p className='or'>OR</p>
-        <Link to="http://localhost:5000/auth/google" id="google">Continue with Google</Link>
+        <Link to={`${import.meta.env.VITE_BASE_URL}/auth/google`} id="google">Continue with Google</Link>
       </form>
     </div>
   )
