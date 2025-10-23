@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL = "http://localhost:5000/api" || "https://chat-app-0l35.onrender.com/api";
+const API_URL = `${import.meta.env.VITE_BASE_URL}/api`;
 
 const axiosInstance = axios.create({
   baseURL: API_URL,

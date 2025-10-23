@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { boolean } = require('zod');
 
 const messageSchema = new mongoose.Schema({
   sender: {

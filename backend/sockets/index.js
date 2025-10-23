@@ -7,7 +7,7 @@ const onlineUsers = new Map();
 function setupSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: true,
+      origin: process.env.FRONTEND_URL,
       methods: ["GET", "POST", "PACTCH", "PUT", "DELETE"],
       credentials: true,
     }

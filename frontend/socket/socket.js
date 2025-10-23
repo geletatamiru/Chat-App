@@ -1,14 +1,15 @@
 import { io } from "socket.io-client";
 
 let socket;
+const baseUrl = import.meta.env.VITE_BASE_URL;
 // https://chat-app-0l35.onrender.com
 export const connectSocket = (token) => {
   console.log(token);
   if (!socket) {
-    socket = io("http://localhost:5000", {
+    socket = io(baseUrl, {
       withCredentials: true,
       transports: ["websocket"],
-      auth: { token }, // ✅ send JWT securely in handshake
+      auth: { token }, 
     });
 
     socket.on("connect", () => {
