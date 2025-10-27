@@ -1,23 +1,18 @@
-const nodemailer = require('nodemailer');
+const {Resend} = require('resend')
 const {VERIFICATION_EMAIL_TEMPLATE, WELCOME_EMAIL_TEMPLATE, PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE} = require('../utils/emailTemplates');
-const transporter = nodemailer.createTransport({
-  service: "Yahoo",  
-  auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS  
-  }
-});
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 async function sendVerificationEmail(to, subject, verificationToken) {
   try {
-    const info = await transporter.sendMail({
-      from: `"ArifChat" <${process.env.EMAIL_USER}>`, // sender
+    const {data} = await resend.emails.send({
+      from: `onboarding@resend.dev`, // sender
       to,                                            // recipient
       subject,                                       // subject line
       html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
-      category: "Email Verification"                                           
     });
-    console.log("Email sent:", info.messageId);
+    if(data)
+      console.log("Email sent:", data?.to);
   } catch (error) {
     console.error("Error sending email:", error.message);
     throw error;
@@ -26,15 +21,15 @@ async function sendVerificationEmail(to, subject, verificationToken) {
 
 async function sendVerificationSuccessEmail(to, subject, username){
   try {
-    const info = await transporter.sendMail({
-      from: `"ArifChat" <${process.env.EMAIL_USER}>`, // sender
+    const {data} = await resend.emails.send({
+      from: `onboarding@resend.dev`, // sender
       to,                                            // recipient
       subject,                                       // subject line
       html: WELCOME_EMAIL_TEMPLATE.replace(/{name}/g, username)
                                   .replace(/{appName}/g, 'ArifChat'),
-      category: "Email Verification"    
     })
-    console.log("Email sent:", info.messageId);
+    if(data)
+      console.log("Email sent:", data?.to);
   } catch (error) {
     console.error("Error sending email:", error.message);
     throw error;
@@ -43,15 +38,16 @@ async function sendVerificationSuccessEmail(to, subject, username){
 
 async function sendResetPasswordEmail(to, subject, username, resetUrl){
   try {
-    const info = await transporter.sendMail({
-      from: `"ArifChat" <${process.env.EMAIL_USER}>`, // sender
+    const {data} = await resend.emails.send({
+      from: `onboarding@resend.dev`, // sender
       to,                                            // recipient
       subject,                                       // subject line
       html: PASSWORD_RESET_REQUEST_TEMPLATE.replace(/{name}/g, username)
                                            .replace(/{resetURL}/g, resetUrl),
-      category: "Reset Password"    
     })
-    console.log("Email sent:", info.messageId);
+    if(data)
+      console.log("Email sent:", data?.to);
+    
   } catch (error) {
     console.error("Error sending email:", error.message);
     throw error;
@@ -60,14 +56,14 @@ async function sendResetPasswordEmail(to, subject, username, resetUrl){
 
 async function sendResetSuccessEmail(to, subject){
   try {
-    const info = await transporter.sendMail({
-      from: `"ArifChat" <${process.env.EMAIL_USER}>`, // sender
+    const {data} = await resend.emails.send({
+      from: `onboarding@resend.dev`, // sender
       to,                                            // recipient
       subject,                                       // subject line
       html: PASSWORD_RESET_SUCCESS_TEMPLATE,
-      category: "Reset Password Successful"    
     })
-    console.log("Email sent:", info.messageId);
+    if(data)
+      console.log("Email sent:", data?.to);
   } catch (error) {
     console.error("Error sending email:", error.message);
     throw error;
