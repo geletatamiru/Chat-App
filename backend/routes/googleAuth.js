@@ -71,8 +71,8 @@ router.get('/callback', async (req, res) => {
     res
       .cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true,
+        sameSite: "none",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
     res.redirect(process.env.FRONTEND_URL);
