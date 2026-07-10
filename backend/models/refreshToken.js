@@ -1,27 +1,18 @@
 const mongoose = require('mongoose');
 const refreshTokenSchema = new mongoose.Schema({ 
-  user: { 
+  userId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', required: true 
   }, 
   tokenHash: { 
     type: String, 
     required: true 
-  }, 
-  expiresAt: { 
-    type: Date, 
-    required: true 
-  }, 
+  },  
   createdAt: { 
     type: Date, 
-    default: Date.now 
-  }, revoked: { 
-    type: Boolean, 
-    default: false 
-  }, 
-  replacedByToken: { 
-    type: String 
-  }, 
+    default: Date.now ,
+    expires: process.env.REFRESH_TOKEN_EXPIRES_IN || "30d",
+  },
 });
 
 const RefreshToken = mongoose.model('RefreshToken', refreshTokenSchema);

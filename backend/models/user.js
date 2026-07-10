@@ -22,13 +22,6 @@ const userSchema = new mongoose.Schema({
     minlength: 5,
     maxlength: 1024,
   },
-  googleId: String,
-  providers: [{ type: String }],
-  isVerified: { type: Boolean, default: false },
-  verificationToken: String,
-  verificationTokenExpires: Date,
-  resetPasswordToken: String,
-  resetPasswordExpires: Date
 })
 
 

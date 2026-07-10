@@ -5,7 +5,7 @@ const auth = require('../routes/auth');
 const message = require('../routes/message')
 const error = require('../middleware/error');
 const user = require('../routes/user');
-const googleAuth = require('../routes/googleAuth');
+// const googleAuth = require('../routes/googleAuth');
 
 module.exports = function(app){
   app.use(cookieParser());
@@ -16,7 +16,7 @@ module.exports = function(app){
     credentials: true
   }));
   app.use('/api/auth', auth);
-  app.use('/auth/google', googleAuth);
+  // app.use('/auth/google', googleAuth);
   app.use('/api/messages', message);
   app.use('/api/users', user);
   app.use(error);

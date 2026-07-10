@@ -3,113 +3,59 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const {signupSchema, loginSchema} = require("../validation/authValidation.js");
 const {createAccessToken, createRefreshToken, verifyAccessToken, hashToken} = require("../utils/token.js");
-const {sendVerificationEmail, sendVerificationSuccessEmail, sendResetPasswordEmail, sendResetSuccessEmail} = require("../utils/mailer.js");
 const RefreshToken = require('../models/refreshToken.js');
 
 const signup = async (req, res) => {
-    const userSchema = signupSchema.parse(req.body);
-  
-    const email = userSchema.email.toLowerCase().trim();
+    const result = signupSchema.safeParse(req.body);
+
+    if(!result.success)
+      return res.status(400).json({ success: false, message: result.error.issues[0].message })
+
+    const email = result.data.email.toLowerCase().trim();
 
     const existingUser = await User.findOne({ email });
 
-    if(existingUser && existingUser.providers.includes("google")){
-      res.status(400).json({success: false, message: "This email is registered with Google. Please sign in using Google."});
-    }
-    if (existingUser) {
-      if (existingUser.isVerified) {
+    if (existingUser) 
         return res
           .status(400)
           .json({ success: false, message: "Email is already registered." });
-      } else {
-        existingUser.password = await bcrypt.hash(userSchema.password, 10);
-        existingUser.verificationToken = crypto.randomInt(100000, 999999); 
-        existingUser.verificationTokenExpires = Date.now() + 1 * 60 * 60 * 1000;
+    
 
-        await existingUser.save();
-
-        await sendVerificationEmail(
-          userSchema.email,
-          "Verify your email",
-          existingUser.verificationToken
-        );
-
-        return res.status(200).json({
-          success: true,
-          message:
-            "This email was already registered but not verified. A new verification code has been sent.",
-        });
-      }
-    }
-
-
-    const hashed = await bcrypt.hash(userSchema.password, 10);
-    const verificationToken = crypto.randomInt(100000,999999)
+    const hashed = await bcrypt.hash(result.data.password, 10);
 
     const user = new User({
-      username: userSchema.username,
+      username: result.data.username,
       email,
       password: hashed,
-      verificationToken,
-      providers: ["local"],
-      verificationTokenExpires: Date.now() +  1 * 60 * 60 * 1000,
     });
 
     await user.save();
 
-    await sendVerificationEmail(email, "Verify your email", verificationToken);
-
     res.status(201).json({
         success: true, 
-        message: "Check your email for verification code.", 
+        message: "Sign up successfull.", 
     });
-}
-
-const verifyEmail = async (req, res) => {
-  const {email, code} = req.body;
-  console.log(email, code);
-  const user = await User.findOne({email, verificationToken: code, verificationTokenExpires: {$gt: Date.now()}})
-
-  if(!user) return res.status(401).json({success: false, message: "Invalid or expired token"});
-
-  user.isVerified= true;
-  user.verificationToken = undefined;
-  user.verificationTokenExpires = undefined;
-
-  await user.save();
-
-  await sendVerificationSuccessEmail(user.email, 'Welcome to ArifChat - your account is verified', user.username);
-
-  res.status(200).json({success: true, message: 'Account Verified Successfully.'})
 }
 
 const login = async (req, res) => {
-  const userSchema = loginSchema.parse(req.body);
+  const result = loginSchema.safeParse(req.body);
+  if(!result.success)
+    return res.status(400).json({ success: false, message: result.error.issues[0].message })
 
-  const user = await User.findOne({email: userSchema.email.toLowerCase().trim()});
+  const user = await User.findOne({email: result.data.email.toLowerCase().trim()});
   if(!user) return res.status(400).json({success: false, message: 'Invalid email or password'}); 
   
-  if(user && !user.providers.includes("local")){
-    res.status(400).json({success: false, message: "This email is registered with Google. Please sign in using Google."});
-  }
-  const isValid = await bcrypt.compare(userSchema.password, user.password);
-  if(!isValid) return res.status(400).json({success: false, message: 'Invalid email or password'});
 
-  if (!user.isVerified) {
-    return res.status(403).json({
-      success: false,
-      isVerfied: false,
-      message: "Your account is not verified."
-    });
-  }
+  const isValid = await bcrypt.compare(result.data.password, user.password);
+  if(!isValid) return res.status(400).json({success: false, message: 'Invalid email or password'});
 
   const accessToken = createAccessToken(user);
   const refreshToken = await createRefreshToken(user._id);
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: false,
+    sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000,
   }).json({
     success: true,
@@ -122,89 +68,15 @@ const login = async (req, res) => {
   })
 }
 
-const resendVerification = async (req, res) => {
-  const {email} = req.body;
 
-  const user = await User.findOne({email});
-  if(!user) return res.status(400).json({success: false, message: "User not registered. Please signup."})
-
-  if(user.isVerified) return res.status(400).json({success: false, message: 'This account is already verified, please log in.'})
-
-  const verificationToken = crypto.randomInt(100000, 999999);
-  const verificationTokenExpires = Date.now() + 1 * 60 * 60 * 1000;
-
-  user.verificationToken = verificationToken;
-  user.verificationTokenExpires = verificationTokenExpires;
-
-  await user.save();
-
-  await sendVerificationEmail(email, "Verify your email", verificationToken);
-
-  res.status(201).json({
-      success: true, 
-      message: "Verfication code resent to your email.", 
-  });
-
-
-} 
-
-const forgotPassword = async (req, res) => {
-  const {email} = req.body;
-
-  const user = await User.findOne({email});
-
-  if(!user) res.status(200).json({success: true, message: "If an account with that email exists, we've sent a password reset link."});
-
-  if(!user.isVerified) res.status(400).json({success: false, message: "Please verify your account first."});
-
-  const resetPasswordToken = crypto.randomBytes(20).toString('hex');
-  const resetPasswordExpires = Date.now() + 1 * 60 * 60 * 1000;
-
-  user.resetPasswordToken = resetPasswordToken;
-  user.resetPasswordExpires = resetPasswordExpires;
-
-  await user.save();
-
-  const resetUrl =`${process.env.CLIENT_URL}/reset-password/${resetPasswordToken}`;
-  await sendResetPasswordEmail(user.email, 'Reset your Password', user.username, resetUrl)
-  
-  res.status(200).json({success: true, message: "If an account with that email exists, we've sent a password reset link."})
-
-}
-
-const resetPassword = async (req, res) => {
-  const {token} = req.params;
-  const {password} = req.body;
-
-  const user = await User.findOne({resetPasswordToken: token, resetPasswordExpires: {$gt: Date.now()}});
-
-  if(!user) res.status(400).json({success: false, message: "Invalid or Expired token"});
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  
-  user.password = hashedPassword;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
-
-  await user.save();
-
-  await sendResetSuccessEmail(user.email, "Reset password successful.")
-  
-  res.status(200).json({success: true, message: "Reset password successful."})
-
-}
 
 const logout = async (req, res) => {
-  const token = req.cookies?.refreshToken;
+  const token = req.cookies.refreshToken;
   if(!token) return res.status(200).json({success: true, message: 'Already logged out' });
 
   const tokenHash = hashToken(token);
-  const refreshTokenDoc = await RefreshToken.findOne({ tokenHash });
 
-  if (refreshTokenDoc) {
-    refreshTokenDoc.revoked = true;
-    await refreshTokenDoc.save();
-  }
+  await RefreshToken.deleteOne({ tokenHash })
   
   res.clearCookie('refreshToken', {
     httpOnly: true,
@@ -215,28 +87,40 @@ const logout = async (req, res) => {
 }
 
 const refresh = async (req, res) => {
-  const token = req.cookies?.refreshToken;
-
+  const token = req.cookies.refreshToken;
   if(!token) return res.status(401).json({success: false, message: 'No refresh token provided'})
   
   const tokenHash = hashToken(token);
-  const storedToken = await RefreshToken.findOne({ tokenHash, revoked: false});
+  const storedToken = await RefreshToken.findOne({ tokenHash });
 
-  if(!storedToken) return res.status(403).json({ message: 'Invalid refresh token' });
+  if(!storedToken) return res.status(403).json({ message: 'Invalid or expired refresh token' });
 
-  if(storedToken.expiresAt < Date.now()) return res.status(403).json({ message: 'Expired refresh token' });
 
-  const user = await User.findById(storedToken.user);
+  const user = await User.findById(storedToken.userId);
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
   const accessToken = createAccessToken(user);
+  const newRefreshToken = await createRefreshToken(user._id);
 
-  res.status(200).json({success: true, message: 'Successfully refreshed', accessToken, user: { id: user._id, username: user.username}})
+  res.cookie('refreshToken', newRefreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  }).json({
+    success: true,
+    message: "Successfully refreshed",
+    accessToken,
+    user: {
+      id: user._id,
+      username: user.username,
+    }
+  })
 }
 
 
-module.exports = {signup, verifyEmail, login, resendVerification, forgotPassword, resetPassword, logout, refresh};
+module.exports = {signup, login, logout, refresh};
 
 
 
