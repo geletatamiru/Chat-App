@@ -1,9 +1,9 @@
+require('./startup/logging')();
 require('dotenv').config();
 const http = require('http');
 const express = require('express');
 const logger = require("./utils/logger");
 const {setupSocket} = require('./sockets')
-require('./startup/logging')();
 require('./startup/db')();
 const app = express();
 require('./startup/routes')(app);

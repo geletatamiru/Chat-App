@@ -1,6 +1,8 @@
 const { Server } = require("socket.io");
 const jwt = require('jsonwebtoken');
-const { handleSocketConnection } = require('./handlers');
+const { userHandler } = require("./handlers/userHandler");
+const { chatHandler } = require("./handlers/chatHandler");
+const { statusHandler } = require("./handlers/statusHandler");
 
 const onlineUsers = new Map();
 
@@ -8,7 +10,7 @@ function setupSocket(server) {
   const io = new Server(server, {
     cors: {
       origin: process.env.FRONTEND_URL,
-      methods: ["GET", "POST", "PACTCH", "PUT", "DELETE"],
+      methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
       credentials: true,
     }
   });
@@ -16,22 +18,23 @@ function setupSocket(server) {
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
     if (!token) {
-      console.log("❌ No token provided");
-      return next(new Error("Authentication error"));
+      return next(new Error("Authentication error.No token provided."));
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.jwt_PrivateKey);
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
       socket.userId = decoded.id;
       next();
     } catch (err) {
-      console.log("❌ Invalid token:", err.message);
-      next(new Error("Authentication error"));
+      next(new Error("Authentication error. Invalid or expired token"));
     }
   });
 
   io.on('connection', (socket) => {
-    handleSocketConnection(socket, io, onlineUsers)
+    logger.info(`Socket connected: ${socket.id}`);
+    userHandler(socket, io, onlineUsers);
+    chatHandler(socket, io, onlineUsers);
+    statusHandler(socket, io, onlineUsers);
 });
 }
 
