@@ -1,4 +1,3 @@
-const logger = require('../utils/logger');
 
 function statusHandler(socket, io, onlineUsers) {
 

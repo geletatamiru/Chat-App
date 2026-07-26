@@ -1,7 +1,7 @@
 const { z } = require('zod');
-const { Message } = require('../models/message');
-const logger = require('../utils/logger');
-const messageSchema = require("../validation/messageValidation");
+const messageSchema = require("../../validation/messageValidation");
+const { Message } = require('../../models/message');
+const logger = require('../../utils/logger');
 
 function chatHandler(socket, io, onlineUsers) {
   socket.on("send_message", async ({ receiver, text }, callback) => {
