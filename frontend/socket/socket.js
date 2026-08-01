@@ -2,9 +2,8 @@ import { io } from "socket.io-client";
 
 let socket;
 const baseUrl = import.meta.env.VITE_BASE_URL;
-// https://chat-app-0l35.onrender.com
+
 export const connectSocket = (token) => {
-  console.log(token);
   if (!socket) {
     socket = io(baseUrl, {
       withCredentials: true,
@@ -19,6 +18,12 @@ export const connectSocket = (token) => {
     socket.on("connect_error", (err) => {
       console.error("❌ Socket connection error:", err.message);
     });
+  } else {
+    socket.auth = { token };
+
+    if (!socket.connected) {
+      socket.connect();
+    }
   }
 
   return socket;

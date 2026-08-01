@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { signupApi } from "../../services/authApi";
 import Input from "../components/Input";
-import { useAuth } from "../context/AuthContext";
 import { signupSchema } from "../validation/authSchema";
 import { ThreeDot } from "react-loading-indicators";
 import z from "zod";
@@ -13,7 +12,6 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const {setEmailForVerification} = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -26,11 +24,9 @@ const Signup = () => {
 
     try {
       signupSchema.parse(formData);
-
-      await signupApi(formData);
-      setEmailForVerification(formData.email);
+      const data = await signupApi(formData);
       setFormData({ username: "", email: "", password: "" });
-      navigate('/verify');
+      navigate('/login');
       
     } catch (error) {
       if (error instanceof z.ZodError) {

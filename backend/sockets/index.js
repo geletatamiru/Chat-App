@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { userHandler } = require("./handlers/userHandler");
 const { chatHandler } = require("./handlers/chatHandler");
 const { statusHandler } = require("./handlers/statusHandler");
+const logger = require("../utils/logger");
 
 const onlineUsers = new Map();
 

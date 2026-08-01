@@ -15,13 +15,8 @@ const ChatWindow = ({isSidebarOpen, setIsSidebarOpen}) => {
   const { accessToken, user } = useAuth();
   
   useEffect(() => {
-    if(accessToken){
-      connectSocket(accessToken);
-    }
-  }, []);
-
-  useEffect(() => {
       const socket = getSocket();
+      if(!socket) return
       socket.on('receive_message', (data) => {
         if(data.sender === selectedUser?._id){
           setMessages(prev => [...prev, { _id: data._id, sender: data.sender, receiver: data.receiver, text: data.text, updatedAt: data.updatedAt, edited: data.edited}]);
@@ -34,8 +29,8 @@ const ChatWindow = ({isSidebarOpen, setIsSidebarOpen}) => {
         }
       });
 
-      socket.on('seen_acknowledged', ({receiverId}) => {
-        if (receiverId === selectedUser?._id) {
+      socket.on('seen_acknowledged', ({senderId}) => {
+        if (senderId === selectedUser?._id) {
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
             !msg.read
@@ -74,7 +69,7 @@ const ChatWindow = ({isSidebarOpen, setIsSidebarOpen}) => {
       };
     };
     loadMessages();
-  }, [selectedUser, accessToken]);
+  }, [selectedUser]);
 
   if (!selectedUser) {
     return (

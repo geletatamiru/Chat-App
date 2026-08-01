@@ -1,12 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import VerificationPage from "./pages/VerificationPage";
 import ChatPage from "./pages/ChatPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
 import "./App.css";
+import PublicRoute from "./components/PublicRoute";
 function App() {
 
   return (
@@ -19,11 +17,16 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/verify" element={<VerificationPage />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/login" element={
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      } />
+      <Route path="/signup" element={ 
+        <PublicRoute>
+          <Signup />
+        </PublicRoute>
+      } />
     </Routes>
   )
 }

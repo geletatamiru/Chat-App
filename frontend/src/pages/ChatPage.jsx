@@ -12,21 +12,29 @@ const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
-    if (accessToken) {
-      connectSocket(accessToken);
-    }
-    const socket = getSocket();
-    if(user.id){
-       socket.emit("add_user", user.id);
-    }
-    socket.on('online-users', (users) => {
+    if(!accessToken || !user?.id) return;
+
+    const socket = getSocket() || connectSocket(accessToken);
+
+    const handleOnlineUsers = (users) => {
       setOnlineUsers(users);
-    }) 
+    };
+
+    socket.on('online-users', handleOnlineUsers);
+    socket.emit("add_user");
+
+    const handleReconnect = () => {
+      socket.emit("add_user");
+    };
+
+    socket.on("connect", handleReconnect);
+
     return () => {
-      socket.off('online-users')
-      socket.off('add_user')
+      socket.off('online-users', handleOnlineUsers);
+      socket.off('connect', handleReconnect);
     }
-  }, [user]);
+  }, [setOnlineUsers, user?.id, accessToken]);
+
   return (
     <div className="chat-page">
       <button className="toggle-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen) }>

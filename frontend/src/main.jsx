@@ -13,5 +13,4 @@ createRoot(document.getElementById('root')).render(
             </AuthProvider>
         </SelectedUserProvider>
     </BrowserRouter>
-
 )

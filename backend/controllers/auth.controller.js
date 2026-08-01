@@ -5,6 +5,12 @@ const {signupSchema, loginSchema} = require("../validation/authValidation.js");
 const {createAccessToken, createRefreshToken, verifyAccessToken, hashToken} = require("../utils/token.js");
 const RefreshToken = require('../models/refreshToken.js');
 
+const refreshCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+};
+
 const signup = async (req, res) => {
     const result = signupSchema.safeParse(req.body);
 
@@ -15,7 +21,13 @@ const signup = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
 
-    if (existingUser) 
+    if (existingUser?.providers?.includes("google") && !existingUser.providers.includes("local")) {
+        return res
+          .status(400)
+          .json({ success: false, message: "This email is registered with Google. Please continue with Google." });
+    }
+
+    if (existingUser)
         return res
           .status(400)
           .json({ success: false, message: "Email is already registered." });
@@ -44,6 +56,12 @@ const login = async (req, res) => {
 
   const user = await User.findOne({email: result.data.email.toLowerCase().trim()});
   if(!user) return res.status(400).json({success: false, message: 'Invalid email or password'}); 
+
+  if (user.providers?.includes("google") && !user.providers.includes("local")) {
+    return res
+      .status(400)
+      .json({ success: false, message: "This email is registered with Google. Please continue with Google." });
+  }
   
 
   const isValid = await bcrypt.compare(result.data.password, user.password);
@@ -79,9 +97,7 @@ const logout = async (req, res) => {
   await RefreshToken.deleteOne({ tokenHash })
   
   res.clearCookie('refreshToken', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    ...refreshCookieOptions,
   });
   res.status(200).json({success: true, message: "Logged out successfully."})
 }
@@ -104,9 +120,7 @@ const refresh = async (req, res) => {
   const newRefreshToken = await createRefreshToken(user._id);
 
   res.cookie('refreshToken', newRefreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    ...refreshCookieOptions,
     maxAge: 30 * 24 * 60 * 60 * 1000,
   }).json({
     success: true,

@@ -14,26 +14,6 @@ export const logoutApi = async () => {
 };
 
 export const refreshApi = async () => {
-  const response = await axiosInstance.get("/auth/refresh");
+  const response = await axiosInstance.post("/auth/refresh");
   return response.data; 
 };
-
-export const verifyEmail = async (email, code) => {
-  const response = await axiosInstance.post("/auth/verify-email", {email, code});
-  return response.data;
-}
-
-export const resendVerification = async (email) => {
-  const response = await axiosInstance.post("/auth/resend-verification", {email});
-  return response.data;
-}
-
-export const forgotPassword = async (email) => {
-  const response = await axiosInstance.post("/auth/forgot-password", {email});
-  return response.data;
-}
-
-export const resetPassword = async (token, password) => {
-  const response = await axiosInstance.post(`/auth/reset-password/${token}`, {password});
-  return response.data;
-}

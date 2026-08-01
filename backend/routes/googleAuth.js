@@ -1,9 +1,18 @@
 const qs = require('querystring');
 const express = require("express");
 const axios = require("axios");
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const { createRefreshToken} = require("../utils/token");
 const  {User} = require('../models/user');
 const router = express.Router();
+
+const getRefreshCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+});
 
 router.get('/', (req, res) => {
   const params = {
@@ -38,7 +47,7 @@ router.get('/callback', async (req, res) => {
       }
     );
 
-    const { access_token, id_token } = tokenResponse.data;
+    const { access_token } = tokenResponse.data;
 
     const userInfoResponse = await axios.get(
       'https://openidconnect.googleapis.com/v1/userinfo',
@@ -49,32 +58,36 @@ router.get('/callback', async (req, res) => {
 
     const profile = userInfoResponse.data; 
 
-    let user = await User.findOne({ email: profile.email });
+    const email = profile.email.toLowerCase().trim();
+    let user = await User.findOne({ email });
     if (user) {
-      if (!user.providers.includes("google")) {
+      const providers = user.providers || ["local"];
+
+      if (!providers.includes("google")) {
         user.googleId = profile.sub;
-        user.providers.push("google");
+        user.providers = [...providers, "google"];
+        await user.save();
+      } else if (!user.googleId) {
+        user.googleId = profile.sub;
         await user.save();
       }
     } else {
+      const randomPassword = crypto.randomBytes(32).toString("hex");
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
       user = await User.create({
-        email: profile.email,
+        email,
         username: profile.name,
         googleId: profile.sub,
         providers: ["google"],
-        password: "no_password"
+        password: hashedPassword,
       });
     }
 
     const refreshToken = await createRefreshToken(user._id);
     
     res
-      .cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-      });
+      .cookie('refreshToken', refreshToken, getRefreshCookieOptions());
     res.redirect(process.env.FRONTEND_URL);
   } catch (err) {
     console.error(err.response?.data || err.message);

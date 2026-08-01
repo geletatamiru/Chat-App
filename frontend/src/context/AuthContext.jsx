@@ -1,13 +1,21 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { loginApi, logoutApi, refreshApi } from "../../services/authApi";
+import { connectSocket, disconnectSocket } from "../../socket/socket";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
-  const [emailForVerfication, setEmailForVerification] = useState(null);
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (accessToken) {
+      const socket = connectSocket(accessToken);
+    } else {
+      disconnectSocket();
+    }
+  }, [accessToken]);
 
   const login = async (data) => {
     try {
@@ -48,7 +56,7 @@ export const AuthProvider = ({children}) => {
     refreshAccessToken().finally(() => setIsLoading(false));
   }, []);
   return  (
-    <AuthContext.Provider value={{ user, accessToken, login, logout, isLoading, setEmailForVerification, emailForVerfication }}>
+    <AuthContext.Provider value={{ user, accessToken, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   )
